@@ -265,8 +265,8 @@ const { stats } = useEnergyData({
 const { stats } = useEnergyData({
   level: 'general',
   period: 'custom',
-  startDate: '2024-01-01',
-  endDate: '2024-01-31'
+  startDate: '2025-01-01',
+  endDate: '2025-01-31'
 });
 ```
 
@@ -371,8 +371,8 @@ function GenerateEnergyReport() {
         type: ReportType.ENERGY_CONSUMPTION,
         format: ReportFormat.PDF,
         filters: {
-          startDate: '2024-01-01',
-          endDate: '2024-01-31',
+          startDate: '2025-01-01',
+          endDate: '2025-01-31',
           buildingIds: ['building-123']
         }
       });
@@ -436,7 +436,7 @@ function FormattedValues() {
       {/* Energia: 1234.56 kWh */}
 
       <p>Data: {formatDate(new Date())}</p>
-      {/* Data: 31/10/2024 */}
+      {/* Data: 31/10/2025 */}
 
       <p>Atualizado: {formatRelativeTime(new Date())}</p>
       {/* Atualizado: há alguns segundos */}

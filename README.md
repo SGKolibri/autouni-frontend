@@ -609,7 +609,7 @@ Este projeto é parte de um trabalho acadêmico.
 
 ## 👥 Autores
 
-**Equipe AutoUni** - 2024
+**Equipe AutoUni** - 2025
 
 - [Seu Nome](https://github.com/seu-usuario)
 - [Colaborador 1](https://github.com/colaborador1)
