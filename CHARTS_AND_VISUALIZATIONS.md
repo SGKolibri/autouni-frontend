@@ -796,7 +796,7 @@ interface DeviceUsageByHour {
 
 **Fonte de Dados:** `GET /rooms` + detecção por sensores
 
-**Tipo de Gráfico:** Nivo - WaffleChart ou Custom Grid
+**Tipo de Gráfico:** Nivo - [WaffleChart](https://nivo.rocks/waffle/)
 
 ```typescript
 interface RoomOccupancy {
@@ -1930,21 +1930,21 @@ interface ThermalMap {
 
 ### **Recharts**  (9 tipos únicos):
 
-1.  **PieChart**  (usado 4x - normal e donut)
-2.  **BarChart**  (usado 6x - horizontal, vertical, stacked, grouped)
-3.  **LineChart**  (usado 4x - simples e multi-line)
-4.  **AreaChart**  (usado 3x - simples e stacked)
-5.  **ComposedChart**  (usado 2x - combina barras + linhas)
-6.  **ScatterChart**  (usado 2x - scatter e timeline)
-7.  **RadarChart**  (usado 1x)
-8.  **Straight Angle PieChart/Gauge**  (usado 1x - gauge customizado)
+1.  **[PieChart](https://recharts.org/en-US/api/PieChart)**  (usado 4x - normal e donut)
+2.  **[BarChart](https://recharts.org/en-US/api/BarChart)**  (usado 6x - horizontal, vertical, stacked, grouped)
+3.  **[LineChart](https://recharts.org/en-US/api/LineChart)**  (usado 4x - simples e multi-line)
+4.  **[AreaChart](https://recharts.org/en-US/api/AreaChart)**  (usado 3x - simples e stacked)
+5.  **[ComposedChart](https://recharts.org/en-US/api/ComposedChart)**  (usado 2x - combina barras + linhas)
+6.  **[ScatterChart](https://recharts.org/en-US/api/ScatterChart)**  (usado 2x - scatter e timeline)
+7.  **[RadarChart](https://recharts.org/en-US/api/RadarChart)**  (usado 1x)
+8.  **[Straight Angle PieChart/Gauge](https://recharts.org/en-US/examples/StraightAnglePieChart)**  (usado 1x - gauge customizado)
 9.  **Cards/KPIs**  (usado 1x - não é gráfico Recharts, mas visualização)
 
 ### **Nivo**  (4 tipos únicos):
 
-10.  **HeatMap**  (usado 3x)
-11.  **TreeMap**  (usado 1x)
-12.  **WaffleChart**  (usado 1x)
+10.  **[HeatMap](https://nivo.rocks/heatmap/)**  (usado 3x)
+11.  **[TreeMap](https://nivo.rocks/treemap/)**  (usado 1x)
+12.  **[Waffle](https://nivo.rocks/waffle/)**  (usado 1x)
 13.  **Interactive Floor Map**  (usado 1x - mapa customizado)
 
 
