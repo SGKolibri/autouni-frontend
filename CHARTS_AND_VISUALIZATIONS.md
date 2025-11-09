@@ -48,7 +48,7 @@ interface DashboardKPIs {
 
 **Fonte de Dados:** `GET /energy/buildings/:buildingId/stats` (atualização a cada 5s via WebSocket)
 
-**Tipo de Gráfico:** Gauge Chart (Velocímetro)
+**Tipo de Gráfico:** Recharts - RadialBarChart (Gauge personalizado)
 
 ```typescript
 interface RealTimePowerGauge {
@@ -57,16 +57,31 @@ interface RealTimePowerGauge {
   averagePower: number;      // Potência média
   unit: 'W' | 'kW';
   status: 'normal' | 'warning' | 'critical';
+  percentage: number;        // % do pico (0-100)
 }
 ```
 
-**Configuração:**
-- Min: 0 W
-- Max: Pico de demanda + 20%
-- Zonas:
-  - Verde: 0-60% do pico
-  - Amarelo: 60-85% do pico
-  - Vermelho: 85-100% do pico
+**Dados do Gráfico:**
+- **Valor atual:** `currentPower` (ex: 1250 W ou 1.25 kW)
+- **Valor máximo:** `peakDemand` (ex: 2000 W)
+- **Percentual:** `percentage` = (currentPower / peakDemand) × 100
+- **Status:** Calculado com base no percentual
+  - `normal`: 0-60% (cor verde)
+  - `warning`: 60-85% (cor amarela)
+  - `critical`: 85-100% (cor vermelha)
+- **Média:** `averagePower` (exibido como referência)
+
+**Exemplo de dados:**
+```json
+{
+  "currentPower": 1250,
+  "peakDemand": 2000,
+  "averagePower": 950,
+  "unit": "W",
+  "status": "warning",
+  "percentage": 62.5
+}
+```
 
 ---
 
@@ -74,7 +89,7 @@ interface RealTimePowerGauge {
 
 **Fonte de Dados:** `GET /energy/buildings/:buildingId/stats?from=hoje-24h&to=agora`
 
-**Tipo de Gráfico:** Line Chart (Linha)
+**Tipo de Gráfico:** Recharts - AreaChart
 
 ```typescript
 interface EnergyHistoryData {
@@ -89,11 +104,30 @@ interface EnergyHistoryData {
 }
 ```
 
-**Configuração:**
-- Eixo X: Tempo (horas do dia)
-- Eixo Y: Energia (kWh)
-- Área preenchida abaixo da linha
-- Tooltip mostrando hora e consumo
+**Dados do Gráfico:**
+- **Eixo X:** Array de `timestamp` (ex: "2025-01-11T00:00:00Z", "2025-01-11T01:00:00Z", ...)
+- **Eixo Y:** Array de `value` em kWh (ex: 12.5, 15.3, 18.7, ...)
+- **Linha/Área:** Conecta todos os pontos de consumo
+- **Total:** `totalKwh` exibido como legenda
+- **Média:** `avgKwh` pode ser mostrada como linha de referência
+- **Pico:** Marcador no ponto `peakHour` com `peakValue`
+
+**Exemplo de dados:**
+```json
+{
+  "history": [
+    { "timestamp": "2025-01-11T00:00:00Z", "value": 12.5 },
+    { "timestamp": "2025-01-11T01:00:00Z", "value": 10.2 },
+    { "timestamp": "2025-01-11T02:00:00Z", "value": 8.7 },
+    ...
+    { "timestamp": "2025-01-11T23:00:00Z", "value": 15.4 }
+  ],
+  "totalKwh": 320.5,
+  "avgKwh": 13.4,
+  "peakHour": "14:00",
+  "peakValue": 25.8
+}
+```
 
 ---
 
@@ -103,7 +137,7 @@ interface EnergyHistoryData {
 
 **Fonte de Dados:** `GET /energy/buildings/:buildingId/stats`
 
-**Tipo de Gráfico:** Gráfico Donut
+**Tipo de Gráfico:** Recharts - PieChart (Donut customizado)
 
 ```typescript
 interface EnergyByDeviceType {
@@ -125,11 +159,37 @@ interface EnergyByDeviceType {
 }
 ```
 
-**Configuração:**
-- Cores distintas por tipo
-- Label com nome e porcentagem
-- Legend interativo
-- Total no centro do gráfico
+**Dados do Gráfico:**
+- **Fatias:** Uma para cada tipo de dispositivo
+- **Valor de cada fatia:** `byDeviceType[tipo]` em kWh
+- **Percentual:** `percentages[tipo]` calculado como (valor / total) × 100
+- **Total:** Exibido no centro do donut
+- **Cores:** Uma cor específica por tipo (ver paleta de cores)
+
+**Exemplo de dados:**
+```json
+{
+  "byDeviceType": {
+    "LIGHT": 145.5,
+    "AC": 320.8,
+    "PROJECTOR": 78.3,
+    "SPEAKER": 12.5,
+    "LOCK": 5.2,
+    "SENSOR": 8.7,
+    "OTHER": 25.0
+  },
+  "total": 596.0,
+  "percentages": {
+    "LIGHT": 24.4,
+    "AC": 53.8,
+    "PROJECTOR": 13.1,
+    "SPEAKER": 2.1,
+    "LOCK": 0.9,
+    "SENSOR": 1.5,
+    "OTHER": 4.2
+  }
+}
+```
 
 ---
 
@@ -137,7 +197,7 @@ interface EnergyByDeviceType {
 
 **Fonte de Dados:** `GET /buildings` + `GET /energy/buildings/:id/stats` para cada prédio
 
-**Tipo de Gráfico:** Bar Chart (Barras Horizontais)
+**Tipo de Gráfico:** Recharts - BarChart (Barras Horizontais)
 
 ```typescript
 interface EnergyByBuilding {
@@ -155,11 +215,41 @@ interface EnergyByBuilding {
 }
 ```
 
-**Configuração:**
-- Ordenado por consumo (maior para menor)
-- Cores baseadas em consumo (verde → vermelho)
-- Tooltip com detalhes (kWh, R$, % do total)
-- Linha de média
+**Dados do Gráfico:**
+- **Eixo Y (categorias):** Array de `name` dos prédios
+- **Eixo X (valores):** Array de `totalKwh` correspondente
+- **Ordenação:** Decrescente por consumo (maior primeiro)
+- **Cor das barras:** Gradiente baseado no valor (verde → amarelo → vermelho)
+- **Linha de referência:** Média de consumo entre todos os prédios
+- **Tooltip:** Mostra nome, kWh, custo R$, tendência %, dispositivos
+
+**Exemplo de dados:**
+```json
+{
+  "buildings": [
+    {
+      "id": "uuid-1",
+      "name": "Prédio Central",
+      "totalKwh": 850.5,
+      "totalCost": 680.40,
+      "trend": 12.5,
+      "activeDevices": 145,
+      "totalDevices": 200
+    },
+    {
+      "id": "uuid-2",
+      "name": "Bloco A",
+      "totalKwh": 620.3,
+      "totalCost": 496.24,
+      "trend": -5.2,
+      "activeDevices": 98,
+      "totalDevices": 150
+    }
+  ],
+  "totalKwh": 1470.8,
+  "totalCost": 1176.64
+}
+```
 
 ---
 
@@ -167,7 +257,7 @@ interface EnergyByBuilding {
 
 **Fonte de Dados:** `GET /energy/buildings/:buildingId/stats` (últimos 12 meses)
 
-**Tipo de Gráfico:** Bar Chart (Barras Verticais)
+**Tipo de Gráfico:** Recharts - ComposedChart (Barras + Linha de tendência)
 
 ```typescript
 interface MonthlyComparison {
@@ -186,10 +276,27 @@ interface MonthlyComparison {
 }
 ```
 
-**Configuração:**
-- Destaque no mês atual
-- Linha de tendência sobreposta
-- Tooltip com comparativo mês anterior
+**Dados do Gráfico:**
+- **Eixo X:** `month` - Array com nomes dos meses ('Jan', 'Fev', 'Mar', ...)
+- **Eixo Y:** `totalKwh` - Consumo total de cada mês
+- **Barras:** Representam o consumo mensal em kWh
+- **Linha de tendência:** Mostra a variação percentual mês a mês
+- **Destaque:** Mês atual com cor diferenciada
+- **Tooltip:** Exibe mês, consumo, custo, média diária, pico
+
+**Exemplo de dados:**
+```json
+{
+  "months": [
+    { "month": "Jan", "year": 2025, "totalKwh": 8500, "totalCost": 6800, "avgDailyKwh": 274, "peakDay": "15", "peakValue": 350 },
+    { "month": "Fev", "year": 2025, "totalKwh": 7800, "totalCost": 6240, "avgDailyKwh": 279, "peakDay": "20", "peakValue": 340 },
+    { "month": "Mar", "year": 2025, "totalKwh": 9200, "totalCost": 7360, "avgDailyKwh": 297, "peakDay": "10", "peakValue": 380 }
+  ],
+  "currentMonth": 2,
+  "trend": 17.9,
+  "yearTotal": 25500
+}
+```
 
 ---
 
@@ -197,7 +304,7 @@ interface MonthlyComparison {
 
 **Fonte de Dados:** `GET /energy/buildings/:buildingId/stats?from=hoje-00:00&to=hoje-23:59`
 
-**Tipo de Gráfico:** Area Chart (Área)
+**Tipo de Gráfico:** Recharts - AreaChart
 
 ```typescript
 interface DailyLoadCurve {
@@ -213,11 +320,30 @@ interface DailyLoadCurve {
 }
 ```
 
-**Configuração:**
-- Eixo X: 0h - 23h
-- Eixo Y: Potência (W ou kW)
-- Marcação de horários de pico
-- Área colorida por faixa de horário
+**Dados do Gráfico:**
+- **Eixo X:** `hour` - Horas do dia (0 a 23)
+- **Eixo Y:** `avgPower` - Potência média em Watts (ou kW)
+- **Área preenchida:** Representa a potência ao longo do dia com gradiente
+- **Linha de pico:** Marca o `peakHour` com valor `peakPower`
+- **Carga base:** `baseLoad` mostrado como linha de referência
+- **Marcações:** Horários de pico destacados
+
+**Exemplo de dados:**
+```json
+{
+  "intervals": [
+    { "hour": 0, "avgPower": 500, "peakPower": 650, "totalKwh": 0.5 },
+    { "hour": 1, "avgPower": 450, "peakPower": 600, "totalKwh": 0.45 },
+    ...
+    { "hour": 14, "avgPower": 1800, "peakPower": 2200, "totalKwh": 1.8 },
+    ...
+    { "hour": 23, "avgPower": 600, "peakPower": 750, "totalKwh": 0.6 }
+  ],
+  "peakHour": 14,
+  "offPeakHour": 3,
+  "baseLoad": 400
+}
+```
 
 ---
 
@@ -225,7 +351,7 @@ interface DailyLoadCurve {
 
 **Fonte de Dados:** `GET /energy/buildings/:buildingId/stats` (últimos 7 dias, por hora)
 
-**Tipo de Gráfico:** Heatmap
+**Tipo de Gráfico:** Nivo - HeatMap
 
 ```typescript
 interface WeeklyHeatmap {
@@ -241,11 +367,37 @@ interface WeeklyHeatmap {
 }
 ```
 
-**Configuração:**
-- Eixo X: Horas (0-23)
-- Eixo Y: Dias da semana
-- Escala de cores: Verde (baixo) → Vermelho (alto)
-- Tooltip com valor exato
+**Dados do Gráfico:**
+- **Eixo X:** `hour` - Horas do dia (0-23)
+- **Eixo Y:** `day` - Dias da semana ('Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom')
+- **Células:** Cada célula representa o consumo `kwh` naquela hora/dia
+- **Intensidade de cor:** Baseada no valor (min → max)
+  - Verde/Azul: Consumo baixo
+  - Amarelo: Consumo médio
+  - Vermelho: Consumo alto
+- **Escala:** De `minKwh` até `maxKwh`
+
+**Exemplo de dados:**
+```json
+{
+  "data": [
+    [
+      { "day": "Seg", "hour": 0, "kwh": 5.2, "intensity": 15 },
+      { "day": "Seg", "hour": 1, "kwh": 4.8, "intensity": 12 },
+      ...
+      { "day": "Seg", "hour": 14, "kwh": 25.3, "intensity": 95 },
+      ...
+    ],
+    [
+      { "day": "Ter", "hour": 0, "kwh": 5.5, "intensity": 16 },
+      ...
+    ]
+  ],
+  "maxKwh": 28.5,
+  "minKwh": 3.2,
+  "avgKwh": 12.7
+}
+```
 
 ---
 
@@ -253,7 +405,7 @@ interface WeeklyHeatmap {
 
 **Fonte de Dados:** `GET /energy/buildings/:buildingId/stats`
 
-**Tipo de Gráfico:** Stacked Area Chart (Área Empilhada)
+**Tipo de Gráfico:** Recharts - AreaChart (Stacked)
 
 ```typescript
 interface EnergyCostBreakdown {
@@ -271,11 +423,31 @@ interface EnergyCostBreakdown {
 }
 ```
 
-**Configuração:**
-- Camadas: Energia + Demanda + Impostos
-- Cores diferenciadas por tipo de custo
-- Linha de orçamento
-- Área de projeção
+**Dados do Gráfico:**
+- **Eixo X:** `date` - Datas do período
+- **Eixo Y:** Custo em Reais (R$)
+- **Áreas empilhadas:**
+  - Camada 1 (verde): `energyCost` - Custo da energia consumida
+  - Camada 2 (azul): `demandCost` - Custo de demanda
+  - Camada 3 (amarelo): `taxes` - Impostos e taxas
+- **Total:** Soma das três camadas = `total`
+- **Linha de orçamento:** `budgetLimit` mostrada como referência
+- **Projeção:** `projectedMonthEnd` indicada no gráfico
+
+**Exemplo de dados:**
+```json
+{
+  "timeline": [
+    { "date": "2025-01-01", "energyCost": 450.20, "demandCost": 120.50, "taxes": 95.30, "total": 666.00 },
+    { "date": "2025-01-02", "energyCost": 480.15, "demandCost": 125.00, "taxes": 101.05, "total": 706.20 },
+    ...
+  ],
+  "monthTotal": 18500.00,
+  "projectedMonthEnd": 21000.00,
+  "budgetLimit": 20000.00,
+  "budgetUsed": 92.5
+}
+```
 
 ---
 
@@ -285,7 +457,7 @@ interface EnergyCostBreakdown {
 
 **Fonte de Dados:** `GET /devices/stats`
 
-**Tipo de Gráfico:** Pie Chart (Pizza)
+**Tipo de Gráfico:** Recharts - PieChart
 
 ```typescript
 interface DeviceStatusDistribution {
@@ -305,12 +477,26 @@ interface DeviceStatusDistribution {
 }
 ```
 
-**Configuração:**
-- Verde: ON
-- Cinza: OFF
-- Amarelo: STANDBY
-- Vermelho: ERROR
-- Total no centro
+**Configuração (Recharts):**
+```tsx
+<PieChart>
+  <Pie
+    data={statusData}
+    dataKey="value"
+    nameKey="status"
+    cx="50%"
+    cy="50%"
+    label
+  >
+    <Cell fill="#10b981" /> {/* ON */}
+    <Cell fill="#6b7280" /> {/* OFF */}
+    <Cell fill="#f59e0b" /> {/* STANDBY */}
+    <Cell fill="#ef4444" /> {/* ERROR */}
+  </Pie>
+  <Tooltip />
+  <Legend />
+</PieChart>
+```
 
 ---
 
@@ -318,7 +504,7 @@ interface DeviceStatusDistribution {
 
 **Fonte de Dados:** `GET /devices/stats`
 
-**Tipo de Gráfico:** Bar Chart (Barras Horizontais)
+**Tipo de Gráfico:** Recharts - BarChart (Stacked Horizontal)
 
 ```typescript
 interface DevicesByType {
@@ -340,10 +526,20 @@ interface DevicesByType {
 }
 ```
 
-**Configuração:**
-- Barras empilhadas (ON + OFF + STANDBY + ERROR)
-- Ícones ao lado de cada tipo
-- Tooltip com detalhamento
+**Configuração (Recharts):**
+```tsx
+<BarChart data={devicesByType} layout="vertical">
+  <CartesianGrid strokeDasharray="3 3" />
+  <XAxis type="number" />
+  <YAxis type="category" dataKey="type" width={120} />
+  <Tooltip />
+  <Legend />
+  <Bar dataKey="on" stackId="a" fill="#10b981" />
+  <Bar dataKey="off" stackId="a" fill="#6b7280" />
+  <Bar dataKey="standby" stackId="a" fill="#f59e0b" />
+  <Bar dataKey="error" stackId="a" fill="#ef4444" />
+</BarChart>
+```
 
 ---
 
@@ -351,7 +547,7 @@ interface DevicesByType {
 
 **Fonte de Dados:** `GET /buildings/:id/details` (com rooms e devices)
 
-**Tipo de Gráfico:** Treemap
+**Tipo de Gráfico:** Nivo - TreeMap
 
 ```typescript
 interface DevicesByRoom {
@@ -368,10 +564,31 @@ interface DevicesByRoom {
 }
 ```
 
-**Configuração:**
-- Tamanho baseado em número de dispositivos
-- Cor baseada em consumo de energia
-- Hierarquia: Prédio → Andar → Sala
+**Configuração (Nivo):**
+```tsx
+import { ResponsiveTreeMap } from '@nivo/treemap'
+
+<ResponsiveTreeMap
+  data={hierarchyData}
+  identity="name"
+  value="deviceCount"
+  valueFormat=".02s"
+  margin={{ top: 10, right: 10, bottom: 10, left: 10 }}
+  labelSkipSize={12}
+  labelTextColor={{ from: 'color', modifiers: [['darker', 1.2]] }}
+  parentLabelPosition="left"
+  parentLabelTextColor={{ from: 'color', modifiers: [['darker', 2]] }}
+  colors={{ scheme: 'nivo' }}
+  borderColor={{ from: 'color', modifiers: [['darker', 0.1]] }}
+  tooltip={({ node }) => (
+    <div>
+      <strong>{node.data.roomName}</strong>
+      <br />Dispositivos: {node.data.deviceCount}
+      <br />Energia: {node.data.energyKwh} kWh
+    </div>
+  )}
+/>
+```
 
 ---
 
@@ -379,7 +596,7 @@ interface DevicesByRoom {
 
 **Fonte de Dados:** `GET /devices` + histórico de status
 
-**Tipo de Gráfico:** Gantt Chart / Timeline
+**Tipo de Gráfico:** Recharts - ScatterChart (Timeline customizado)
 
 ```typescript
 interface OfflineTimeline {
@@ -398,11 +615,22 @@ interface OfflineTimeline {
 }
 ```
 
-**Configuração:**
-- Eixo X: Tempo (últimos 7 dias)
-- Eixo Y: Dispositivos
-- Barras vermelhas para períodos offline
-- Tooltip com duração e motivo
+**Configuração (Recharts - Timeline customizado):**
+```tsx
+<BarChart data={offlineEvents} layout="horizontal">
+  <CartesianGrid strokeDasharray="3 3" />
+  <XAxis type="number" domain={['dataMin', 'dataMax']} />
+  <YAxis type="category" dataKey="deviceName" width={150} />
+  <Tooltip content={<CustomTimelineTooltip />} />
+  <Bar dataKey="duration" fill="#ef4444">
+    {offlineEvents.map((entry, index) => (
+      <Cell key={`cell-${index}`} />
+    ))}
+  </Bar>
+</BarChart>
+```
+
+**Nota:** Para timeline mais complexo, considere biblioteca complementar ou componente customizado.
 
 ---
 
@@ -410,7 +638,7 @@ interface OfflineTimeline {
 
 **Fonte de Dados:** WebSocket events + histórico
 
-**Tipo de Gráfico:** Multi-Line Chart
+**Tipo de Gráfico:** Recharts - LineChart (Multi-line)
 
 ```typescript
 interface DeviceUsageByHour {
@@ -425,11 +653,21 @@ interface DeviceUsageByHour {
 }
 ```
 
-**Configuração:**
-- Uma linha por tipo de dispositivo
-- Eixo X: Horas do dia
-- Eixo Y: Quantidade ativa
-- Legend interativo
+**Configuração (Recharts):**
+```tsx
+<LineChart data={hourlyData}>
+  <CartesianGrid strokeDasharray="3 3" />
+  <XAxis dataKey="hour" label="Hora do dia" />
+  <YAxis label="Dispositivos ativos" />
+  <Tooltip />
+  <Legend />
+  <Line type="monotone" dataKey="LIGHT" stroke="#fbbf24" strokeWidth={2} />
+  <Line type="monotone" dataKey="AC" stroke="#3b82f6" strokeWidth={2} />
+  <Line type="monotone" dataKey="PROJECTOR" stroke="#8b5cf6" strokeWidth={2} />
+  <Line type="monotone" dataKey="SPEAKER" stroke="#ec4899" strokeWidth={2} />
+  <Line type="monotone" dataKey="SENSOR" stroke="#10b981" strokeWidth={2} />
+</LineChart>
+```
 
 ---
 
@@ -439,7 +677,7 @@ interface DeviceUsageByHour {
 
 **Fonte de Dados:** `GET /rooms` + detecção por sensores
 
-**Tipo de Gráfico:** Grid/Matrix
+**Tipo de Gráfico:** Nivo - WaffleChart ou Custom Grid
 
 ```typescript
 interface RoomOccupancy {
@@ -459,10 +697,29 @@ interface RoomOccupancy {
 }
 ```
 
-**Configuração:**
-- Grid visual de salas
-- Cores: Verde (livre), Amarelo (parcial), Vermelho (cheio)
-- Tooltip com detalhes
+**Configuração (Nivo WaffleChart):**
+```tsx
+import { ResponsiveWaffle } from '@nivo/waffle'
+
+<ResponsiveWaffle
+  data={roomOccupancyData}
+  total={totalRooms}
+  rows={rows}
+  columns={columns}
+  padding={1}
+  colors={{ scheme: 'category10' }}
+  borderColor={{ from: 'color', modifiers: [['darker', 0.3]] }}
+  animate={true}
+  legends={[{
+    anchor: 'top-right',
+    direction: 'column',
+    itemWidth: 100,
+    itemHeight: 20
+  }]}
+/>
+```
+
+**Alternativa:** Grid customizado com Material-UI Grid e Cards coloridos.
 
 ---
 
@@ -470,7 +727,7 @@ interface RoomOccupancy {
 
 **Fonte de Dados:** Histórico de ocupação
 
-**Tipo de Gráfico:** Heatmap
+**Tipo de Gráfico:** Nivo - HeatMap
 
 ```typescript
 interface WeeklyUtilization {
@@ -487,10 +744,28 @@ interface WeeklyUtilization {
 }
 ```
 
-**Configuração:**
-- Eixo X: Dias da semana
-- Eixo Y: Salas
-- Cor baseada em % de utilização
+**Configuração (Nivo):**
+```tsx
+import { ResponsiveHeatMap } from '@nivo/heatmap'
+
+<ResponsiveHeatMap
+  data={utilizationData}
+  margin={{ top: 60, right: 60, bottom: 60, left: 120 }}
+  valueFormat=">-.0%"
+  axisTop={{
+    legend: 'Dia da semana',
+  }}
+  axisLeft={{
+    legend: 'Salas',
+    legendOffset: -100
+  }}
+  colors={{
+    type: 'sequential',
+    scheme: 'blues',
+  }}
+  emptyColor="#eeeeee"
+/>
+```
 
 ---
 
@@ -498,7 +773,7 @@ interface WeeklyUtilization {
 
 **Fonte de Dados:** Histórico de ocupação + tipo de sala
 
-**Tipo de Gráfico:** Grouped Bar Chart
+**Tipo de Gráfico:** Recharts - BarChart (Grouped)
 
 ```typescript
 interface PeakUsageByRoomType {
@@ -513,10 +788,20 @@ interface PeakUsageByRoomType {
 }
 ```
 
-**Configuração:**
-- Barras agrupadas por tipo de sala
-- Eixo X: Horas do dia
-- Eixo Y: Taxa de ocupação (%)
+**Configuração (Recharts):**
+```tsx
+<BarChart data={peakUsageData}>
+  <CartesianGrid strokeDasharray="3 3" />
+  <XAxis dataKey="hour" label="Hora do dia" />
+  <YAxis label="Taxa de ocupação (%)" />
+  <Tooltip />
+  <Legend />
+  <Bar dataKey="CLASSROOM" fill="#3b82f6" />
+  <Bar dataKey="LAB" fill="#10b981" />
+  <Bar dataKey="OFFICE" fill="#f59e0b" />
+  <Bar dataKey="AUDITORIUM" fill="#8b5cf6" />
+</BarChart>
+```
 
 ---
 
@@ -526,7 +811,7 @@ interface PeakUsageByRoomType {
 
 **Fonte de Dados:** `GET /automations/stats`, `GET /automations/:id/history`
 
-**Tipo de Gráfico:** Line Chart + Bar Chart (Combo)
+**Tipo de Gráfico:** Recharts - ComposedChart (Line + Stacked Bar)
 
 ```typescript
 interface AutomationExecutions {
@@ -546,10 +831,20 @@ interface AutomationExecutions {
 }
 ```
 
-**Configuração:**
-- Linha: Total de execuções
-- Barras empilhadas: Success + Failed + Pending
-- Cores: Verde (success), Vermelho (failed), Amarelo (pending)
+**Configuração (Recharts):**
+```tsx
+<ComposedChart data={timeline}>
+  <CartesianGrid strokeDasharray="3 3" />
+  <XAxis dataKey="date" />
+  <YAxis />
+  <Tooltip />
+  <Legend />
+  <Bar dataKey="successfulExecutions" stackId="a" fill="#10b981" />
+  <Bar dataKey="failedExecutions" stackId="a" fill="#ef4444" />
+  <Bar dataKey="pendingExecutions" stackId="a" fill="#f59e0b" />
+  <Line type="monotone" dataKey="totalExecutions" stroke="#667eea" strokeWidth={2} />
+</ComposedChart>
+```
 
 ---
 
@@ -557,7 +852,7 @@ interface AutomationExecutions {
 
 **Fonte de Dados:** `GET /automations/stats`
 
-**Tipo de Gráfico:** Doughnut Chart
+**Tipo de Gráfico:** Recharts - PieChart (Donut)
 
 ```typescript
 interface AutomationsByType {
@@ -571,10 +866,27 @@ interface AutomationsByType {
 }
 ```
 
-**Configuração:**
-- Cores distintas por tipo
-- Total no centro
-- Legend com contagem
+**Configuração (Recharts):**
+```tsx
+<PieChart>
+  <Pie
+    data={automationTypeData}
+    dataKey="value"
+    nameKey="type"
+    cx="50%"
+    cy="50%"
+    innerRadius={60}
+    outerRadius={80}
+    label
+  >
+    <Cell fill="#667eea" /> {/* SCHEDULE */}
+    <Cell fill="#10b981" /> {/* CONDITION */}
+    <Cell fill="#f59e0b" /> {/* MANUAL */}
+  </Pie>
+  <Tooltip />
+  <Legend />
+</PieChart>
+```
 
 ---
 
@@ -582,7 +894,7 @@ interface AutomationsByType {
 
 **Fonte de Dados:** `GET /automations` + histórico
 
-**Tipo de Gráfico:** Horizontal Bar Chart
+**Tipo de Gráfico:** Recharts - BarChart (Horizontal)
 
 ```typescript
 interface TopAutomations {
@@ -597,10 +909,23 @@ interface TopAutomations {
 }
 ```
 
-**Configuração:**
-- Top 10 automações
-- Ordenado por execuções
-- Barra de sucesso sobreposta
+**Configuração (Recharts):**
+```tsx
+<BarChart data={topAutomations} layout="vertical">
+  <CartesianGrid strokeDasharray="3 3" />
+  <XAxis type="number" />
+  <YAxis type="category" dataKey="name" width={200} />
+  <Tooltip />
+  <Bar dataKey="executionCount" fill="#667eea">
+    {topAutomations.map((entry, index) => (
+      <Cell 
+        key={`cell-${index}`} 
+        fill={entry.successRate > 90 ? '#10b981' : entry.successRate > 70 ? '#f59e0b' : '#ef4444'}
+      />
+    ))}
+  </Bar>
+</BarChart>
+```
 
 ---
 
@@ -608,7 +933,7 @@ interface TopAutomations {
 
 **Fonte de Dados:** `GET /automations/:id/history`
 
-**Tipo de Gráfico:** Stacked Percentage Bar Chart
+**Tipo de Gráfico:** Recharts - BarChart (100% Stacked)
 
 ```typescript
 interface AutomationSuccessRate {
@@ -624,10 +949,21 @@ interface AutomationSuccessRate {
 }
 ```
 
-**Configuração:**
-- 100% empilhado
-- Verde (success) + Vermelho (failed) + Amarelo (pending)
-- Ordenado por taxa de sucesso
+**Configuração (Recharts):**
+```tsx
+<BarChart data={automationSuccessData} layout="vertical">
+  <CartesianGrid strokeDasharray="3 3" />
+  <XAxis type="number" domain={[0, 100]} />
+  <YAxis type="category" dataKey="name" width={150} />
+  <Tooltip formatter={(value) => `${value}%`} />
+  <Legend />
+  <Bar dataKey="successRate" stackId="a" fill="#10b981" />
+  <Bar dataKey="failureRate" stackId="a" fill="#ef4444" />
+  <Bar dataKey="pendingRate" stackId="a" fill="#f59e0b" />
+</BarChart>
+```
+
+**Nota:** Calcular percentagens no frontend antes de passar para o gráfico.
 
 ---
 
@@ -637,7 +973,7 @@ interface AutomationSuccessRate {
 
 **Fonte de Dados:** `GET /reports/me`
 
-**Tipo de Gráfico:** Progress Bars + Cards
+**Tipo de Gráfico:** Recharts - PieChart + Material-UI Cards
 
 ```typescript
 interface ReportsStatus {
@@ -665,9 +1001,33 @@ interface ReportsStatus {
 ```
 
 **Configuração:**
-- Cards com contadores por status
-- Barras de progresso para reports em processamento
-- Lista dos 5 mais recentes
+- Material-UI Cards para contadores
+- Material-UI LinearProgress para progresso
+- Recharts PieChart para distribuição por tipo
+
+```tsx
+// Cards com KPIs
+<Grid container spacing={2}>
+  {statusCounts.map(status => (
+    <Grid item xs={3}>
+      <Card>
+        <CardContent>
+          <Typography variant="h4">{status.count}</Typography>
+          <Typography color="textSecondary">{status.label}</Typography>
+        </CardContent>
+      </Card>
+    </Grid>
+  ))}
+</Grid>
+
+// Lista com progresso
+{processingReports.map(report => (
+  <Box>
+    <Typography>{report.title}</Typography>
+    <LinearProgress variant="determinate" value={report.progress} />
+  </Box>
+))}
+```
 
 ---
 
@@ -675,7 +1035,7 @@ interface ReportsStatus {
 
 **Fonte de Dados:** `GET /reports/me`
 
-**Tipo de Gráfico:** Timeline Chart
+**Tipo de Gráfico:** Recharts - ScatterChart (Timeline)
 
 ```typescript
 interface ReportsTimeline {
@@ -693,10 +1053,23 @@ interface ReportsTimeline {
 }
 ```
 
-**Configuração:**
-- Eixo X: Tempo
-- Marcadores coloridos por status
-- Tooltip com detalhes
+**Configuração (Recharts):**
+```tsx
+<ScatterChart>
+  <CartesianGrid strokeDasharray="3 3" />
+  <XAxis dataKey="createdAt" type="category" />
+  <YAxis dataKey="duration" label="Duração (s)" />
+  <Tooltip content={<CustomReportTooltip />} />
+  <Scatter data={reports} fill="#667eea">
+    {reports.map((entry, index) => (
+      <Cell 
+        key={`cell-${index}`}
+        fill={getStatusColor(entry.status)}
+      />
+    ))}
+  </Scatter>
+</ScatterChart>
+```
 
 ---
 
@@ -706,7 +1079,7 @@ interface ReportsTimeline {
 
 **Fonte de Dados:** `GET /buildings` + stats de cada
 
-**Tipo de Gráfico:** Radar Chart (Gráfico de Radar)
+**Tipo de Gráfico:** Recharts - RadarChart
 
 ```typescript
 interface BuildingComparison {
@@ -725,11 +1098,37 @@ interface BuildingComparison {
 }
 ```
 
-**Configuração:**
-- Eixos: 6 métricas principais
-- Uma linha por prédio
-- Cores distintas
-- Área preenchida
+**Configuração (Recharts):**
+```tsx
+<RadarChart data={metricsData}>
+  <PolarGrid />
+  <PolarAngleAxis dataKey="metric" />
+  <PolarRadiusAxis angle={90} domain={[0, 100]} />
+  <Radar 
+    name="Prédio A" 
+    dataKey="buildingA" 
+    stroke="#667eea" 
+    fill="#667eea" 
+    fillOpacity={0.6} 
+  />
+  <Radar 
+    name="Prédio B" 
+    dataKey="buildingB" 
+    stroke="#10b981" 
+    fill="#10b981" 
+    fillOpacity={0.6} 
+  />
+  <Radar 
+    name="Prédio C" 
+    dataKey="buildingC" 
+    stroke="#f59e0b" 
+    fill="#f59e0b" 
+    fillOpacity={0.6} 
+  />
+  <Legend />
+  <Tooltip />
+</RadarChart>
+```
 
 ---
 
@@ -737,7 +1136,7 @@ interface BuildingComparison {
 
 **Fonte de Dados:** `GET /energy/buildings/:id/stats` (últimos 90 dias)
 
-**Tipo de Gráfico:** Line Chart com Regressão
+**Tipo de Gráfico:** Recharts - ComposedChart (Line + Area de confiança)
 
 ```typescript
 interface ConsumptionTrend {
@@ -936,14 +1335,99 @@ interface ThermalMap {
 
 ---
 
-## 📋 Biblioteca Recomendada
+## 📋 Bibliotecas Utilizadas
 
-### Chart Library:
+### Chart Libraries:
 
-**Nivo**
-   - Focado em D3.js
-   - Gráficos complexos e bonitos
-   - SVG e Canvas
+#### 1. **Recharts** (Principal) ⭐
+```bash
+npm install recharts
+```
+**Uso:**
+- ✅ Line Charts (históricos, tendências)
+- ✅ Area Charts (curva de carga, consumo acumulado)
+- ✅ Bar Charts (comparativos, rankings)
+- ✅ Pie/Donut Charts (distribuições, status)
+- ✅ Composed Charts (múltiplas visualizações)
+- ✅ Scatter Charts (correlações)
+- ✅ Radar Charts (comparativos multidimensionais)
+
+**Responsável por:** ~85% dos gráficos da aplicação
+
+---
+
+#### 2. **Nivo** (Gráficos Avançados) ⭐
+```bash
+npm install @nivo/core @nivo/heatmap @nivo/calendar @nivo/treemap @nivo/waffle
+```
+**Uso:**
+- ✅ HeatMaps (consumo semanal, temperatura)
+- ✅ Calendar HeatMaps (padrões anuais)
+- ✅ TreeMaps (hierarquia de dispositivos/salas)
+- ✅ Waffle Charts (ocupação visual)
+- ✅ Bump Charts (rankings ao longo do tempo)
+
+**Responsável por:** ~15% dos gráficos (visualizações complexas)
+
+---
+
+### 📦 Instalação Completa:
+
+```bash
+# Recharts (principal)
+npm install recharts
+
+# Nivo (gráficos avançados)
+npm install @nivo/core @nivo/heatmap @nivo/calendar @nivo/treemap @nivo/waffle
+
+# TypeScript types
+npm install --save-dev @types/recharts
+```
+
+---
+
+### 🎨 Paleta de Cores Padrão:
+
+```typescript
+export const chartColors = {
+  // Cores primárias
+  primary: '#667eea',
+  secondary: '#764ba2',
+  success: '#10b981',
+  warning: '#f59e0b',
+  danger: '#ef4444',
+  info: '#3b82f6',
+  
+  // Gradientes para energia
+  energyGradient: ['#10b981', '#f59e0b', '#ef4444'], // Verde → Amarelo → Vermelho
+  
+  // Cores por tipo de dispositivo
+  deviceTypes: {
+    LIGHT: '#fbbf24',      // Amarelo
+    AC: '#3b82f6',         // Azul
+    PROJECTOR: '#8b5cf6',  // Roxo
+    SPEAKER: '#ec4899',    // Rosa
+    LOCK: '#6b7280',       // Cinza
+    SENSOR: '#10b981',     // Verde
+    OTHER: '#64748b'       // Cinza escuro
+  },
+  
+  // Cores por status
+  deviceStatus: {
+    ON: '#10b981',      // Verde
+    OFF: '#6b7280',     // Cinza
+    STANDBY: '#f59e0b', // Amarelo
+    ERROR: '#ef4444'    // Vermelho
+  },
+  
+  // Cores para heatmaps (Nivo)
+  heatmapSchemes: {
+    energy: 'greens',      // Consumo de energia
+    temperature: 'RdYlBu', // Temperatura (invertido)
+    usage: 'blues'         // Taxa de uso
+  }
+};
+```
 
 ---
 
