@@ -48,7 +48,7 @@ interface DashboardKPIs {
 
 **Fonte de Dados:** `GET /energy/buildings/:buildingId/stats` (atualização a cada 5s via WebSocket)
 
-**Tipo de Gráfico:** Recharts - RadialBarChart (Gauge personalizado)
+**Tipo de Gráfico:** Recharts - [RadialBarChart](https://recharts.github.io/en-US/examples/SimpleRadialBarChart/) (Gauge personalizado)
 
 ```typescript
 interface RealTimePowerGauge {
