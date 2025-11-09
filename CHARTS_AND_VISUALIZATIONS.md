@@ -1947,15 +1947,6 @@ interface ThermalMap {
 12.  **[Waffle](https://nivo.rocks/waffle/)**  (usado 1x)
 13.  **Interactive Floor Map**  (usado 1x - mapa customizado)
 
-
-## 📋 Bibliotecas Utilizadas
-
-### Chart Libraries:
-
-#### **Recharts** (Principal) ⭐
-
-#### **Nivo** (Gráficos Avançados) ⭐
-
 ---
 
 ### 🎨 Paleta de Cores Padrão (exemplo):
@@ -2000,27 +1991,6 @@ export const chartColors = {
   }
 };
 ```
-
----
-
-## 🔄 Atualização de Dados
-
-### Tempo Real (WebSocket):
-- Consumo atual de energia
-- Status de dispositivos
-- Alertas e notificações
-- Mapa de dispositivos ativos
-
-### Polling (a cada minuto):
-- KPIs do dashboard
-- Ocupação de salas
-- Métricas de automação
-
-### Refresh Manual/Navegação:
-- Históricos longos
-- Comparativos mensais/anuais
-- Relatórios
-- Estatísticas agregadas
 
 ---
 
