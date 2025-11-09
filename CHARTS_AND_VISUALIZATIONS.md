@@ -7,18 +7,26 @@
 
 ## 📊 Sumário
 
-1. [Dashboard Principal](#1-dashboard-principal)
-2. [Gráficos de Energia](#2-gráficos-de-energia)
-3. [Gráficos de Dispositivos](#3-gráficos-de-dispositivos)
-4. [Gráficos de Ocupação e Uso](#4-gráficos-de-ocupação-e-uso)
-5. [Gráficos de Automação](#5-gráficos-de-automação)
-6. [Relatórios Visuais](#6-relatórios-visuais)
-7. [Comparativos e Tendências](#7-comparativos-e-tendências)
-8. [Mapas de Calor](#8-mapas-de-calor)
+1. [Dashboard Principal](#1-dashboard-principal-3-gráficos-principais)
+2. [Gráficos de Energia](#2-gráficos-de-energia-6-gráficos)
+3. [Gráficos de Dispositivos](#3-gráficos-de-dispositivos-5-gráficos)
+4. [Gráficos de Ocupação e Uso](#4-gráficos-de-ocupação-e-uso-3-gráficos)
+5. [Gráficos de Automação](#5-gráficos-de-automação-4-gráficos)
+6. [Relatórios Visuais](#6-relatórios-visuais-2-gráficos)
+7. [Comparativos e Tendências](#7-comparativos-e-tendências-4-gráficos)
+8. [Mapas de Calor](#8-mapas-de-calor-3-gráficos)
+9. [Tipos de Gráficos Únicos](#9-tipos-de-gráficos-únicos)
 
+
+### Resumo geral:
+
+-  Total de gráficos no documento: 30
+-  Gráficos únicos: 13
+-  Reutilização média: Cada tipo é usado ~2.3 vezes
+  
 ---
 
-## 1. Dashboard Principal
+## 1. Dashboard Principal (3 gráficos principais)
 
 ### 1.1 KPIs (Cards de Métricas)
 
@@ -131,7 +139,7 @@ interface EnergyHistoryData {
 
 ---
 
-## 2. Gráficos de Energia
+## 2. Gráficos de Energia (6 gráficos)
 
 ### 2.1 Consumo por Tipo de Dispositivo
 
@@ -451,7 +459,7 @@ interface EnergyCostBreakdown {
 
 ---
 
-## 3. Gráficos de Dispositivos
+## 3. Gráficos de Dispositivos (5 gráficos)
 
 ### 3.1 Status dos Dispositivos
 
@@ -782,7 +790,7 @@ interface DeviceUsageByHour {
 
 ---
 
-## 4. Gráficos de Ocupação e Uso
+## 4. Gráficos de Ocupação e Uso (3 gráficos)
 
 ### 4.1 Ocupação de Salas
 
@@ -978,7 +986,7 @@ interface PeakUsageByRoomType {
 
 ---
 
-## 5. Gráficos de Automação
+## 5. Gráficos de Automação (4 gráficos)
 
 ### 5.1 Execuções de Automação
 
@@ -1221,7 +1229,7 @@ interface AutomationSuccessRate {
 
 ---
 
-## 6. Relatórios Visuais
+## 6. Relatórios Visuais (2 gráficos)
 
 ### 6.1 Status de Relatórios
 
@@ -1381,7 +1389,7 @@ interface ReportsTimeline {
 
 ---
 
-## 7. Comparativos e Tendências
+## 7. Comparativos e Tendências (4 gráficos)
 
 ### 7.1 Comparativo de Prédios
 
@@ -1666,7 +1674,7 @@ interface EnergyEfficiency {
 
 ---
 
-## 8. Mapas de Calor
+## 8. Mapas de Calor (3 gráficos)
 
 ### 8.1 Mapa de Calor de Consumo por Andar
 
@@ -1916,6 +1924,29 @@ interface ThermalMap {
 ```
 
 ---
+
+
+## 9. Tipos de Gráficos Únicos
+
+### **Recharts**  (9 tipos únicos):
+
+1.  **PieChart**  (usado 4x - normal e donut)
+2.  **BarChart**  (usado 6x - horizontal, vertical, stacked, grouped)
+3.  **LineChart**  (usado 4x - simples e multi-line)
+4.  **AreaChart**  (usado 3x - simples e stacked)
+5.  **ComposedChart**  (usado 2x - combina barras + linhas)
+6.  **ScatterChart**  (usado 2x - scatter e timeline)
+7.  **RadarChart**  (usado 1x)
+8.  **Straight Angle PieChart/Gauge**  (usado 1x - gauge customizado)
+9.  **Cards/KPIs**  (usado 1x - não é gráfico Recharts, mas visualização)
+
+### **Nivo**  (4 tipos únicos):
+
+10.  **HeatMap**  (usado 3x)
+11.  **TreeMap**  (usado 1x)
+12.  **WaffleChart**  (usado 1x)
+13.  **Interactive Floor Map**  (usado 1x - mapa customizado)
+
 
 ## 📋 Bibliotecas Utilizadas
 
