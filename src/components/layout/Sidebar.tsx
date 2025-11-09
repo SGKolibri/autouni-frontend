@@ -210,7 +210,7 @@ const Sidebar = ({ drawerWidth }: SidebarProps) => {
             textAlign: 'center',
           }}
         >
-          v1.0.0 • 2024
+          v1.0.1 • 2025 - AutoUni
         </Typography>
       </Box>
     </Box>
