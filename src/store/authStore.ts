@@ -23,14 +23,12 @@ export const useAuthStore = create<AuthState>((set) => ({
   isLoading: true,
 
   setUser: (user) => {
-    console.log("📝 setUser chamado:", user);
     if (user) {
       localStorage.setItem('user', JSON.stringify(user));
     } else {
       localStorage.removeItem('user');
     }
     set({ user, isAuthenticated: !!user });
-    console.log("📝 setUser - isAuthenticated:", !!user);
   },
 
   setTokens: (tokens) => {
@@ -45,12 +43,10 @@ export const useAuthStore = create<AuthState>((set) => ({
   },
 
   setLoading: (isLoading) => {
-    console.log("⏳ setLoading chamado:", isLoading);
     set({ isLoading });
   },
 
   login: (user, tokens) => {
-    console.log("🔐 login chamado:", { user, tokens });
     localStorage.setItem('accessToken', tokens.accessToken);
     localStorage.setItem('refreshToken', tokens.refreshToken);
     localStorage.setItem('user', JSON.stringify(user));
@@ -60,7 +56,6 @@ export const useAuthStore = create<AuthState>((set) => ({
       isAuthenticated: true,
       isLoading: false,
     });
-    console.log("🔐 login - Estado atualizado: isAuthenticated=true, isLoading=false");
   },
 
   logout: () => {

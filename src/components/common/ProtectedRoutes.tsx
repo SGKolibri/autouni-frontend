@@ -16,26 +16,15 @@ const ProtectedRoute = ({ children, requiredRoles }: ProtectedRouteProps) => {
   const isLoading = useAuthStore((state) => state.isLoading);
   const user = useAuthStore((state) => state.user);
 
-  console.log("🔒 ProtectedRoute - Estado:", {
-    isLoading,
-    isAuthenticated,
-    user,
-    location: location.pathname
-  });
-
   // Loading state
   if (isLoading) {
-    console.log("⏳ ProtectedRoute - Mostrando loading...");
     return <LoadingScreen />;
   }
 
   // Not authenticated - redirect to login
   if (!isAuthenticated) {
-    console.log("❌ ProtectedRoute - Não autenticado, redirecionando para /login");
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
-
-  console.log("✅ ProtectedRoute - Autenticado, permitindo acesso");
 
   // Check role-based access
   if (requiredRoles && requiredRoles.length > 0) {

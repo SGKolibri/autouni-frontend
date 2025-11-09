@@ -44,26 +44,23 @@ function App() {
         if (storedUser) {
           try {
             const user = JSON.parse(storedUser);
-            console.log("✅ Sessão restaurada do localStorage:", user);
             setUser(user);
             setTokens({ accessToken, refreshToken });
             setLoading(false);
             return;
           } catch (e) {
-            console.warn("⚠️ Erro ao parsear usuário do localStorage:", e);
+            throw new Error("Erro ao parsear usuário do localStorage");
           }
         }
 
         // Se não tem no localStorage, busca da API
         try {
           const response = await apiService.get<User>("/auth/me");
-          console.log("✅ Sessão restaurada da API:", response.data);
           setUser(response.data);
           setTokens({ accessToken, refreshToken });
           localStorage.setItem('user', JSON.stringify(response.data));
         } catch (error) {
           // Token inválido, limpa storage
-          console.error("❌ Erro ao restaurar sessão:", error);
           localStorage.removeItem("accessToken");
           localStorage.removeItem("refreshToken");
           localStorage.removeItem("user");
@@ -71,7 +68,6 @@ function App() {
           setTokens(null);
         }
       } else {
-        console.log("ℹ️ Nenhum token encontrado");
         setUser(null);
       }
       
