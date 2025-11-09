@@ -48,7 +48,7 @@ interface DashboardKPIs {
 
 **Fonte de Dados:** `GET /energy/buildings/:buildingId/stats` (atualização a cada 5s via WebSocket)
 
-**Tipo de Gráfico:** Recharts - [RadialBarChart](https://recharts.github.io/en-US/examples/SimpleRadialBarChart/) (Gauge personalizado)
+**Tipo de Gráfico:** Recharts - [Straight Angle Pie Chart](https://recharts.github.io/en-US/examples/StraightAnglePieChart/) (Gauge personalizado)
 
 ```typescript
 interface RealTimePowerGauge {
@@ -89,7 +89,7 @@ interface RealTimePowerGauge {
 
 **Fonte de Dados:** `GET /energy/buildings/:buildingId/stats?from=hoje-24h&to=agora`
 
-**Tipo de Gráfico:** Recharts - AreaChart
+**Tipo de Gráfico:** Recharts - [AreaChart](https://recharts.github.io/en-US/examples/SimpleAreaChart/)
 
 ```typescript
 interface EnergyHistoryData {
@@ -137,7 +137,7 @@ interface EnergyHistoryData {
 
 **Fonte de Dados:** `GET /energy/buildings/:buildingId/stats`
 
-**Tipo de Gráfico:** Recharts - PieChart (Donut customizado)
+**Tipo de Gráfico:** Recharts - [PieChart](https://recharts.github.io/en-US/examples/TwoLevelPieChart/) (Donut customizado)
 
 ```typescript
 interface EnergyByDeviceType {
@@ -197,7 +197,7 @@ interface EnergyByDeviceType {
 
 **Fonte de Dados:** `GET /buildings` + `GET /energy/buildings/:id/stats` para cada prédio
 
-**Tipo de Gráfico:** Recharts - BarChart (Barras Horizontais)
+**Tipo de Gráfico:** Recharts - [BarChart](https://recharts.github.io/en-US/examples/TwoLevelPieChart/https://recharts.github.io/en-US/examples/TwoLevelPieChart/) (Barras Horizontais)
 
 ```typescript
 interface EnergyByBuilding {
@@ -257,7 +257,7 @@ interface EnergyByBuilding {
 
 **Fonte de Dados:** `GET /energy/buildings/:buildingId/stats` (últimos 12 meses)
 
-**Tipo de Gráfico:** Recharts - ComposedChart (Barras + Linha de tendência)
+**Tipo de Gráfico:** Recharts - ComposedChart ([Barras](https://recharts.github.io/en-US/examples/TwoLevelPieChart/https://recharts.github.io/en-US/examples/TwoLevelPieChart/) + [Linha de tendência](https://recharts.github.io/en-US/examples/TwoLevelPieChart/https://recharts.github.io/en-US/examples/TwoLevelPieChart/))
 
 ```typescript
 interface MonthlyComparison {
@@ -304,7 +304,7 @@ interface MonthlyComparison {
 
 **Fonte de Dados:** `GET /energy/buildings/:buildingId/stats?from=hoje-00:00&to=hoje-23:59`
 
-**Tipo de Gráfico:** Recharts - AreaChart
+**Tipo de Gráfico:** Recharts - [AreaChart](https://recharts.github.io/en-US/examples/TwoLevelPieChart/https://recharts.github.io/en-US/examples/TwoLevelPieChart/)
 
 ```typescript
 interface DailyLoadCurve {
@@ -351,7 +351,7 @@ interface DailyLoadCurve {
 
 **Fonte de Dados:** `GET /energy/buildings/:buildingId/stats` (últimos 7 dias, por hora)
 
-**Tipo de Gráfico:** Nivo - HeatMap
+**Tipo de Gráfico:** Nivo - [HeatMap](https://nivo.rocks/heatmap/)
 
 ```typescript
 interface WeeklyHeatmap {
@@ -405,7 +405,7 @@ interface WeeklyHeatmap {
 
 **Fonte de Dados:** `GET /energy/buildings/:buildingId/stats`
 
-**Tipo de Gráfico:** Recharts - AreaChart (Stacked)
+**Tipo de Gráfico:** Recharts - [AreaChart](https://recharts.github.io/en-US/examples/StackedAreaChart/) (Stacked)
 
 ```typescript
 interface EnergyCostBreakdown {
@@ -457,7 +457,7 @@ interface EnergyCostBreakdown {
 
 **Fonte de Dados:** `GET /devices/stats`
 
-**Tipo de Gráfico:** Recharts - PieChart
+**Tipo de Gráfico:** Recharts - [PieChart](https://recharts.github.io/en-US/examples/PieChartWithCustomizedLabel/)
 
 ```typescript
 interface DeviceStatusDistribution {
@@ -477,25 +477,34 @@ interface DeviceStatusDistribution {
 }
 ```
 
-**Configuração (Recharts):**
-```tsx
-<PieChart>
-  <Pie
-    data={statusData}
-    dataKey="value"
-    nameKey="status"
-    cx="50%"
-    cy="50%"
-    label
-  >
-    <Cell fill="#10b981" /> {/* ON */}
-    <Cell fill="#6b7280" /> {/* OFF */}
-    <Cell fill="#f59e0b" /> {/* STANDBY */}
-    <Cell fill="#ef4444" /> {/* ERROR */}
-  </Pie>
-  <Tooltip />
-  <Legend />
-</PieChart>
+**Dados do Gráfico:**
+- **Fatias:** Uma para cada status (ON, OFF, STANDBY, ERROR)
+- **Valor de cada fatia:** Quantidade de dispositivos com aquele status
+- **Percentuais:** Calculados automaticamente (quantidade / total) × 100
+- **Cores por status:**
+  - ON (Verde #10b981): Dispositivos ligados e funcionando
+  - OFF (Cinza #6b7280): Dispositivos desligados
+  - STANDBY (Amarelo #f59e0b): Dispositivos em espera
+  - ERROR (Vermelho #ef4444): Dispositivos com erro
+- **Total:** Exibido no centro do gráfico ou na legenda
+
+**Exemplo de dados:**
+```json
+{
+  "byStatus": {
+    "ON": 145,
+    "OFF": 78,
+    "STANDBY": 23,
+    "ERROR": 4
+  },
+  "total": 250,
+  "percentages": {
+    "ON": 58.0,
+    "OFF": 31.2,
+    "STANDBY": 9.2,
+    "ERROR": 1.6
+  }
+}
 ```
 
 ---
@@ -526,19 +535,40 @@ interface DevicesByType {
 }
 ```
 
-**Configuração (Recharts):**
-```tsx
-<BarChart data={devicesByType} layout="vertical">
-  <CartesianGrid strokeDasharray="3 3" />
-  <XAxis type="number" />
-  <YAxis type="category" dataKey="type" width={120} />
-  <Tooltip />
-  <Legend />
-  <Bar dataKey="on" stackId="a" fill="#10b981" />
-  <Bar dataKey="off" stackId="a" fill="#6b7280" />
-  <Bar dataKey="standby" stackId="a" fill="#f59e0b" />
-  <Bar dataKey="error" stackId="a" fill="#ef4444" />
-</BarChart>
+**Dados do Gráfico:**
+- **Eixo Y (categorias):** Tipos de dispositivos (LIGHT, AC, PROJECTOR, SPEAKER, LOCK, SENSOR, OTHER)
+- **Eixo X (valores):** Quantidade de dispositivos
+- **Barras empilhadas por status:**
+  - Verde (#10b981): Dispositivos ON
+  - Cinza (#6b7280): Dispositivos OFF
+  - Amarelo (#f59e0b): Dispositivos STANDBY
+  - Vermelho (#ef4444): Dispositivos ERROR
+- **Total por tipo:** Soma de todas as barras empilhadas
+- **Ordenação:** Por quantidade total (decrescente)
+
+**Exemplo de dados:**
+```json
+{
+  "byType": {
+    "LIGHT": 85,
+    "AC": 42,
+    "PROJECTOR": 28,
+    "SPEAKER": 35,
+    "LOCK": 45,
+    "SENSOR": 12,
+    "OTHER": 3
+  },
+  "totalDevices": 250,
+  "activeByType": {
+    "LIGHT": 62,
+    "AC": 38,
+    "PROJECTOR": 15,
+    "SPEAKER": 20,
+    "LOCK": 8,
+    "SENSOR": 2,
+    "OTHER": 0
+  }
+}
 ```
 
 ---
@@ -564,30 +594,53 @@ interface DevicesByRoom {
 }
 ```
 
-**Configuração (Nivo):**
-```tsx
-import { ResponsiveTreeMap } from '@nivo/treemap'
+**Dados do Gráfico:**
+- **Hierarquia:** Andares → Salas → Dispositivos
+- **Tamanho dos retângulos:** Proporcional ao `deviceCount` de cada sala
+- **Cores:** Baseadas no tipo de sala (`roomType`) ou nível de atividade
+- **Agrupamento:** Salas do mesmo andar ficam agrupadas visualmente
+- **Labels:**
+  - Andares: Mostrados em fonte maior nas áreas agrupadas
+  - Salas: Nome da sala + quantidade de dispositivos
+- **Tooltip:** Exibe nome, quantidade de dispositivos, ativos, e consumo energético
 
-<ResponsiveTreeMap
-  data={hierarchyData}
-  identity="name"
-  value="deviceCount"
-  valueFormat=".02s"
-  margin={{ top: 10, right: 10, bottom: 10, left: 10 }}
-  labelSkipSize={12}
-  labelTextColor={{ from: 'color', modifiers: [['darker', 1.2]] }}
-  parentLabelPosition="left"
-  parentLabelTextColor={{ from: 'color', modifiers: [['darker', 2]] }}
-  colors={{ scheme: 'nivo' }}
-  borderColor={{ from: 'color', modifiers: [['darker', 0.1]] }}
-  tooltip={({ node }) => (
-    <div>
-      <strong>{node.data.roomName}</strong>
-      <br />Dispositivos: {node.data.deviceCount}
-      <br />Energia: {node.data.energyKwh} kWh
-    </div>
-  )}
-/>
+**Exemplo de dados:**
+```json
+{
+  "floors": [
+    {
+      "floorName": "Térreo",
+      "rooms": [
+        {
+          "roomName": "Sala 101",
+          "roomType": "CLASSROOM",
+          "deviceCount": 15,
+          "activeDevices": 12,
+          "energyKwh": 8.5
+        },
+        {
+          "roomName": "Laboratório A",
+          "roomType": "LAB",
+          "deviceCount": 28,
+          "activeDevices": 20,
+          "energyKwh": 18.3
+        }
+      ]
+    },
+    {
+      "floorName": "1º Andar",
+      "rooms": [
+        {
+          "roomName": "Sala 201",
+          "roomType": "CLASSROOM",
+          "deviceCount": 12,
+          "activeDevices": 10,
+          "energyKwh": 6.8
+        }
+      ]
+    }
+  ]
+}
 ```
 
 ---
@@ -615,22 +668,55 @@ interface OfflineTimeline {
 }
 ```
 
-**Configuração (Recharts - Timeline customizado):**
-```tsx
-<BarChart data={offlineEvents} layout="horizontal">
-  <CartesianGrid strokeDasharray="3 3" />
-  <XAxis type="number" domain={['dataMin', 'dataMax']} />
-  <YAxis type="category" dataKey="deviceName" width={150} />
-  <Tooltip content={<CustomTimelineTooltip />} />
-  <Bar dataKey="duration" fill="#ef4444">
-    {offlineEvents.map((entry, index) => (
-      <Cell key={`cell-${index}`} />
-    ))}
-  </Bar>
-</BarChart>
-```
+**Dados do Gráfico:**
+- **Eixo Y:** Lista de dispositivos (`deviceName`)
+- **Eixo X:** Linha do tempo (horas/dias)
+- **Barras horizontais:** Cada barra representa um evento offline
+  - Início: `startTime`
+  - Fim: `endTime` (ou momento atual se null)
+  - Comprimento: Proporcional à `duration` em minutos
+- **Cor:** Vermelho (#ef4444) para eventos offline
+- **Tooltip:** Mostra dispositivo, período, duração, e motivo (se disponível)
+- **Métricas:** Total de downtime e MTBF exibidos como resumo
 
-**Nota:** Para timeline mais complexo, considere biblioteca complementar ou componente customizado.
+**Exemplo de dados:**
+```json
+{
+  "devices": [
+    {
+      "deviceId": "uuid-1",
+      "deviceName": "AC Sala 101",
+      "offlineEvents": [
+        {
+          "startTime": "2025-01-10T08:30:00Z",
+          "endTime": "2025-01-10T09:15:00Z",
+          "duration": 45,
+          "reason": "Manutenção programada"
+        },
+        {
+          "startTime": "2025-01-11T14:00:00Z",
+          "endTime": null,
+          "duration": 120,
+          "reason": "Falha de conexão"
+        }
+      ]
+    },
+    {
+      "deviceId": "uuid-2",
+      "deviceName": "Projetor Lab A",
+      "offlineEvents": [
+        {
+          "startTime": "2025-01-09T10:00:00Z",
+          "endTime": "2025-01-09T11:30:00Z",
+          "duration": 90
+        }
+      ]
+    }
+  ],
+  "totalDowntime": 255,
+  "mtbf": 1440
+}
+```
 
 ---
 
@@ -653,20 +739,45 @@ interface DeviceUsageByHour {
 }
 ```
 
-**Configuração (Recharts):**
-```tsx
-<LineChart data={hourlyData}>
-  <CartesianGrid strokeDasharray="3 3" />
-  <XAxis dataKey="hour" label="Hora do dia" />
-  <YAxis label="Dispositivos ativos" />
-  <Tooltip />
-  <Legend />
-  <Line type="monotone" dataKey="LIGHT" stroke="#fbbf24" strokeWidth={2} />
-  <Line type="monotone" dataKey="AC" stroke="#3b82f6" strokeWidth={2} />
-  <Line type="monotone" dataKey="PROJECTOR" stroke="#8b5cf6" strokeWidth={2} />
-  <Line type="monotone" dataKey="SPEAKER" stroke="#ec4899" strokeWidth={2} />
-  <Line type="monotone" dataKey="SENSOR" stroke="#10b981" strokeWidth={2} />
-</LineChart>
+**Dados do Gráfico:**
+- **Eixo X:** Horas do dia (0 a 23)
+- **Eixo Y:** Quantidade de dispositivos ativos
+- **Linhas múltiplas:** Uma linha para cada tipo de dispositivo
+  - LIGHT (Amarelo #fbbf24): Iluminação
+  - AC (Azul #3b82f6): Ar condicionado
+  - PROJECTOR (Roxo #8b5cf6): Projetores
+  - SPEAKER (Rosa #ec4899): Caixas de som
+  - SENSOR (Verde #10b981): Sensores
+- **Valores:** `activeCount` - média de dispositivos ativos naquela hora
+- **Padrões:** Permite identificar horários de pico de uso por tipo
+
+**Exemplo de dados:**
+```json
+{
+  "deviceTypes": [
+    {
+      "type": "LIGHT",
+      "hourlyAverage": [
+        { "hour": 0, "activeCount": 5, "percentage": 5.9 },
+        { "hour": 1, "activeCount": 3, "percentage": 3.5 },
+        { "hour": 7, "activeCount": 45, "percentage": 52.9 },
+        { "hour": 8, "activeCount": 78, "percentage": 91.8 },
+        { "hour": 14, "activeCount": 82, "percentage": 96.5 },
+        { "hour": 18, "activeCount": 65, "percentage": 76.5 },
+        { "hour": 22, "activeCount": 12, "percentage": 14.1 }
+      ]
+    },
+    {
+      "type": "AC",
+      "hourlyAverage": [
+        { "hour": 0, "activeCount": 0, "percentage": 0 },
+        { "hour": 8, "activeCount": 35, "percentage": 83.3 },
+        { "hour": 14, "activeCount": 42, "percentage": 100 },
+        { "hour": 18, "activeCount": 20, "percentage": 47.6 }
+      ]
+    }
+  ]
+}
 ```
 
 ---
@@ -697,29 +808,50 @@ interface RoomOccupancy {
 }
 ```
 
-**Configuração (Nivo WaffleChart):**
-```tsx
-import { ResponsiveWaffle } from '@nivo/waffle'
+**Dados do Gráfico:**
+- **Grid visual:** Cada célula representa uma sala
+- **Organização:** Agrupado por andar (`floorNumber`)
+- **Cores das células:**
+  - Verde: Sala vazia (occupied = false)
+  - Amarelo: Sala parcialmente ocupada (0% < occupancyRate < 80%)
+  - Vermelho: Sala cheia (occupancyRate ≥ 80%)
+  - Cinza: Sala indisponível
+- **Tamanho:** Proporcional à capacidade da sala
+- **Labels:** Número da sala dentro de cada célula
+- **Tooltip:** Tipo, capacidade, ocupação atual, taxa de ocupação, última atualização
 
-<ResponsiveWaffle
-  data={roomOccupancyData}
-  total={totalRooms}
-  rows={rows}
-  columns={columns}
-  padding={1}
-  colors={{ scheme: 'category10' }}
-  borderColor={{ from: 'color', modifiers: [['darker', 0.3]] }}
-  animate={true}
-  legends={[{
-    anchor: 'top-right',
-    direction: 'column',
-    itemWidth: 100,
-    itemHeight: 20
-  }]}
-/>
+**Exemplo de dados:**
+```json
+{
+  "floors": [
+    {
+      "floorNumber": 0,
+      "rooms": [
+        {
+          "roomId": "uuid-1",
+          "roomNumber": "101",
+          "roomType": "CLASSROOM",
+          "capacity": 40,
+          "currentOccupancy": 35,
+          "occupied": true,
+          "occupancyRate": 87.5,
+          "lastUpdate": "2025-01-11T14:30:00Z"
+        },
+        {
+          "roomId": "uuid-2",
+          "roomNumber": "102",
+          "roomType": "LAB",
+          "capacity": 25,
+          "currentOccupancy": 0,
+          "occupied": false,
+          "occupancyRate": 0,
+          "lastUpdate": "2025-01-11T14:30:00Z"
+        }
+      ]
+    }
+  ]
+}
 ```
-
-**Alternativa:** Grid customizado com Material-UI Grid e Cards coloridos.
 
 ---
 
@@ -727,7 +859,7 @@ import { ResponsiveWaffle } from '@nivo/waffle'
 
 **Fonte de Dados:** Histórico de ocupação
 
-**Tipo de Gráfico:** Nivo - HeatMap
+**Tipo de Gráfico:** Nivo - [HeatMap](https://nivo.rocks/heatmap/)
 
 ```typescript
 interface WeeklyUtilization {
@@ -744,27 +876,45 @@ interface WeeklyUtilization {
 }
 ```
 
-**Configuração (Nivo):**
-```tsx
-import { ResponsiveHeatMap } from '@nivo/heatmap'
+**Dados do Gráfico:**
+- **Eixo X:** Dias da semana ('Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom')
+- **Eixo Y:** Nome das salas
+- **Células:** Cada célula mostra a taxa de utilização (`utilizationRate`) naquele dia
+- **Intensidade de cor:** Gradiente baseado na taxa de utilização
+  - Azul claro: 0-25% (pouco usada)
+  - Azul médio: 25-50%
+  - Azul escuro: 50-75%
+  - Azul intenso: 75-100% (muito usada)
+- **Tooltip:** Nome da sala, dia, horas usadas, total de horas, taxa de utilização
+- **Agrupamento:** Salas podem ser agrupadas por tipo (CLASSROOM, LAB, etc.)
 
-<ResponsiveHeatMap
-  data={utilizationData}
-  margin={{ top: 60, right: 60, bottom: 60, left: 120 }}
-  valueFormat=">-.0%"
-  axisTop={{
-    legend: 'Dia da semana',
-  }}
-  axisLeft={{
-    legend: 'Salas',
-    legendOffset: -100
-  }}
-  colors={{
-    type: 'sequential',
-    scheme: 'blues',
-  }}
-  emptyColor="#eeeeee"
-/>
+**Exemplo de dados:**
+```json
+{
+  "rooms": [
+    {
+      "roomName": "Sala 101",
+      "roomType": "CLASSROOM",
+      "dailyUsage": [
+        { "dayOfWeek": "Seg", "utilizationRate": 87.5, "hoursUsed": 7, "totalHours": 8 },
+        { "dayOfWeek": "Ter", "utilizationRate": 75.0, "hoursUsed": 6, "totalHours": 8 },
+        { "dayOfWeek": "Qua", "utilizationRate": 100.0, "hoursUsed": 8, "totalHours": 8 },
+        { "dayOfWeek": "Qui", "utilizationRate": 62.5, "hoursUsed": 5, "totalHours": 8 },
+        { "dayOfWeek": "Sex", "utilizationRate": 50.0, "hoursUsed": 4, "totalHours": 8 },
+        { "dayOfWeek": "Sáb", "utilizationRate": 0, "hoursUsed": 0, "totalHours": 8 },
+        { "dayOfWeek": "Dom", "utilizationRate": 0, "hoursUsed": 0, "totalHours": 8 }
+      ]
+    },
+    {
+      "roomName": "Lab A",
+      "roomType": "LAB",
+      "dailyUsage": [
+        { "dayOfWeek": "Seg", "utilizationRate": 50.0, "hoursUsed": 4, "totalHours": 8 },
+        { "dayOfWeek": "Ter", "utilizationRate": 62.5, "hoursUsed": 5, "totalHours": 8 }
+      ]
+    }
+  ]
+}
 ```
 
 ---
@@ -788,19 +938,42 @@ interface PeakUsageByRoomType {
 }
 ```
 
-**Configuração (Recharts):**
-```tsx
-<BarChart data={peakUsageData}>
-  <CartesianGrid strokeDasharray="3 3" />
-  <XAxis dataKey="hour" label="Hora do dia" />
-  <YAxis label="Taxa de ocupação (%)" />
-  <Tooltip />
-  <Legend />
-  <Bar dataKey="CLASSROOM" fill="#3b82f6" />
-  <Bar dataKey="LAB" fill="#10b981" />
-  <Bar dataKey="OFFICE" fill="#f59e0b" />
-  <Bar dataKey="AUDITORIUM" fill="#8b5cf6" />
-</BarChart>
+**Dados do Gráfico:**
+- **Eixo X:** Horas do dia (0-23)
+- **Eixo Y:** Taxa de ocupação (%)
+- **Barras agrupadas:** Uma barra para cada tipo de sala no mesmo horário
+  - CLASSROOM (Azul #3b82f6): Salas de aula
+  - LAB (Verde #10b981): Laboratórios
+  - OFFICE (Amarelo #f59e0b): Escritórios
+  - AUDITORIUM (Roxo #8b5cf6): Auditórios
+- **Valores:** `avgOccupancy` - ocupação média naquele horário
+- **Padrões:** Permite comparar picos de uso entre diferentes tipos de sala
+- **Tooltip:** Tipo de sala, hora, ocupação média, pico de ocupação
+
+**Exemplo de dados:**
+```json
+{
+  "roomTypes": [
+    {
+      "type": "CLASSROOM",
+      "peakHours": [
+        { "hour": 8, "avgOccupancy": 65.5, "peakOccupancy": 95.0 },
+        { "hour": 9, "avgOccupancy": 85.2, "peakOccupancy": 100.0 },
+        { "hour": 10, "avgOccupancy": 90.8, "peakOccupancy": 100.0 },
+        { "hour": 14, "avgOccupancy": 78.3, "peakOccupancy": 95.0 },
+        { "hour": 18, "avgOccupancy": 20.5, "peakOccupancy": 45.0 }
+      ]
+    },
+    {
+      "type": "LAB",
+      "peakHours": [
+        { "hour": 8, "avgOccupancy": 40.0, "peakOccupancy": 70.0 },
+        { "hour": 14, "avgOccupancy": 88.5, "peakOccupancy": 100.0 },
+        { "hour": 16, "avgOccupancy": 72.0, "peakOccupancy": 90.0 }
+      ]
+    }
+  ]
+}
 ```
 
 ---
@@ -831,19 +1004,42 @@ interface AutomationExecutions {
 }
 ```
 
-**Configuração (Recharts):**
-```tsx
-<ComposedChart data={timeline}>
-  <CartesianGrid strokeDasharray="3 3" />
-  <XAxis dataKey="date" />
-  <YAxis />
-  <Tooltip />
-  <Legend />
-  <Bar dataKey="successfulExecutions" stackId="a" fill="#10b981" />
-  <Bar dataKey="failedExecutions" stackId="a" fill="#ef4444" />
-  <Bar dataKey="pendingExecutions" stackId="a" fill="#f59e0b" />
-  <Line type="monotone" dataKey="totalExecutions" stroke="#667eea" strokeWidth={2} />
-</ComposedChart>
+**Dados do Gráfico:**
+- **Eixo X:** Datas (`date`)
+- **Eixo Y:** Quantidade de execuções
+- **Barras empilhadas:**
+  - Verde (#10b981): `successfulExecutions` - Execuções bem-sucedidas
+  - Vermelho (#ef4444): `failedExecutions` - Execuções falhadas
+  - Amarelo (#f59e0b): `pendingExecutions` - Execuções pendentes
+- **Linha de tendência:** Roxo (#667eea) mostra `totalExecutions` (total)
+- **Estatísticas adicionais:** Total de automações, habilitadas, desabilitadas, taxa de sucesso geral
+
+**Exemplo de dados:**
+```json
+{
+  "timeline": [
+    {
+      "date": "2025-01-01",
+      "totalExecutions": 145,
+      "successfulExecutions": 138,
+      "failedExecutions": 5,
+      "pendingExecutions": 2
+    },
+    {
+      "date": "2025-01-02",
+      "totalExecutions": 162,
+      "successfulExecutions": 155,
+      "failedExecutions": 3,
+      "pendingExecutions": 4
+    }
+  ],
+  "stats": {
+    "total": 48,
+    "enabled": 42,
+    "disabled": 6,
+    "successRate": 95.8
+  }
+}
 ```
 
 ---
@@ -852,7 +1048,7 @@ interface AutomationExecutions {
 
 **Fonte de Dados:** `GET /automations/stats`
 
-**Tipo de Gráfico:** Recharts - PieChart (Donut)
+**Tipo de Gráfico:** Recharts - [PieChart](https://recharts.github.io/en-US/examples/PieChartWithCustomizedLabel/) (Donut)
 
 ```typescript
 interface AutomationsByType {
@@ -866,26 +1062,27 @@ interface AutomationsByType {
 }
 ```
 
-**Configuração (Recharts):**
-```tsx
-<PieChart>
-  <Pie
-    data={automationTypeData}
-    dataKey="value"
-    nameKey="type"
-    cx="50%"
-    cy="50%"
-    innerRadius={60}
-    outerRadius={80}
-    label
-  >
-    <Cell fill="#667eea" /> {/* SCHEDULE */}
-    <Cell fill="#10b981" /> {/* CONDITION */}
-    <Cell fill="#f59e0b" /> {/* MANUAL */}
-  </Pie>
-  <Tooltip />
-  <Legend />
-</PieChart>
+**Dados do Gráfico:**
+- **Fatias:** Uma para cada tipo de automação
+- **Tipos:**
+  - SCHEDULE (Roxo #667eea): Automações programadas por horário
+  - CONDITION (Verde #10b981): Automações baseadas em condições
+  - MANUAL (Amarelo #f59e0b): Automações acionadas manualmente
+- **Valor:** Quantidade de automações de cada tipo
+- **Formato:** Gráfico de rosca (donut) com total no centro
+- **Execuções recentes:** Mostrado como métrica adicional
+
+**Exemplo de dados:**
+```json
+{
+  "byType": {
+    "SCHEDULE": 28,
+    "CONDITION": 15,
+    "MANUAL": 5
+  },
+  "total": 48,
+  "recentExecutions": 342
+}
 ```
 
 ---
@@ -909,22 +1106,47 @@ interface TopAutomations {
 }
 ```
 
-**Configuração (Recharts):**
-```tsx
-<BarChart data={topAutomations} layout="vertical">
-  <CartesianGrid strokeDasharray="3 3" />
-  <XAxis type="number" />
-  <YAxis type="category" dataKey="name" width={200} />
-  <Tooltip />
-  <Bar dataKey="executionCount" fill="#667eea">
-    {topAutomations.map((entry, index) => (
-      <Cell 
-        key={`cell-${index}`} 
-        fill={entry.successRate > 90 ? '#10b981' : entry.successRate > 70 ? '#f59e0b' : '#ef4444'}
-      />
-    ))}
-  </Bar>
-</BarChart>
+**Dados do Gráfico:**
+- **Eixo Y:** Nome das automações (`name`)
+- **Eixo X:** Quantidade de execuções (`executionCount`)
+- **Ordenação:** Decrescente por número de execuções (mais executadas primeiro)
+- **Cores dinâmicas baseadas em `successRate`:**
+  - Verde (#10b981): Taxa de sucesso > 90%
+  - Amarelo (#f59e0b): Taxa de sucesso entre 70% e 90%
+  - Vermelho (#ef4444): Taxa de sucesso < 70%
+- **Tooltip:** Nome, execuções, taxa de sucesso, duração média, última execução
+- **Limite:** Top 10 automações mais executadas
+
+**Exemplo de dados:**
+```json
+{
+  "automations": [
+    {
+      "id": "uuid-1",
+      "name": "Desligar luzes após horário",
+      "executionCount": 1450,
+      "successRate": 98.5,
+      "avgDuration": 245,
+      "lastExecutedAt": "2025-01-11T18:00:00Z"
+    },
+    {
+      "id": "uuid-2",
+      "name": "Ajustar AC por temperatura",
+      "executionCount": 980,
+      "successRate": 92.3,
+      "avgDuration": 580,
+      "lastExecutedAt": "2025-01-11T14:30:00Z"
+    },
+    {
+      "id": "uuid-3",
+      "name": "Ligar projetores manhã",
+      "executionCount": 420,
+      "successRate": 65.8,
+      "avgDuration": 320,
+      "lastExecutedAt": "2025-01-11T08:00:00Z"
+    }
+  ]
+}
 ```
 
 ---
@@ -933,7 +1155,7 @@ interface TopAutomations {
 
 **Fonte de Dados:** `GET /automations/:id/history`
 
-**Tipo de Gráfico:** Recharts - BarChart (100% Stacked)
+**Tipo de Gráfico:** Recharts - [BarChart](https://recharts.github.io/en-US/examples/SimpleBarChart/)
 
 ```typescript
 interface AutomationSuccessRate {
@@ -949,21 +1171,53 @@ interface AutomationSuccessRate {
 }
 ```
 
-**Configuração (Recharts):**
-```tsx
-<BarChart data={automationSuccessData} layout="vertical">
-  <CartesianGrid strokeDasharray="3 3" />
-  <XAxis type="number" domain={[0, 100]} />
-  <YAxis type="category" dataKey="name" width={150} />
-  <Tooltip formatter={(value) => `${value}%`} />
-  <Legend />
-  <Bar dataKey="successRate" stackId="a" fill="#10b981" />
-  <Bar dataKey="failureRate" stackId="a" fill="#ef4444" />
-  <Bar dataKey="pendingRate" stackId="a" fill="#f59e0b" />
-</BarChart>
-```
+**Dados do Gráfico:**
+- **Eixo Y:** Nome das automações (`name`)
+- **Eixo X:** Percentual (0-100%)
+- **Barras empilhadas horizontais com 100% de largura:**
+  - Verde (#10b981): `successRate` - Taxa de sucesso
+  - Vermelho (#ef4444): Taxa de falha (calculada)
+  - Amarelo (#f59e0b): Taxa pendente (calculada)
+- **Cálculo das taxas:**
+  - successRate = (successCount / totalExecutions) × 100
+  - failureRate = (failureCount / totalExecutions) × 100
+  - pendingRate = (pendingCount / totalExecutions) × 100
+- **Ordenação:** Por taxa de sucesso (decrescente)
 
-**Nota:** Calcular percentagens no frontend antes de passar para o gráfico.
+**Exemplo de dados:**
+```json
+{
+  "automations": [
+    {
+      "id": "uuid-1",
+      "name": "Desligar luzes",
+      "totalExecutions": 1450,
+      "successCount": 1428,
+      "failureCount": 18,
+      "pendingCount": 4,
+      "successRate": 98.5
+    },
+    {
+      "id": "uuid-2",
+      "name": "Ajustar AC",
+      "totalExecutions": 980,
+      "successCount": 905,
+      "failureCount": 65,
+      "pendingCount": 10,
+      "successRate": 92.3
+    },
+    {
+      "id": "uuid-3",
+      "name": "Ligar projetores",
+      "totalExecutions": 420,
+      "successCount": 276,
+      "failureCount": 140,
+      "pendingCount": 4,
+      "successRate": 65.7
+    }
+  ]
+}
+```
 
 ---
 
@@ -973,7 +1227,7 @@ interface AutomationSuccessRate {
 
 **Fonte de Dados:** `GET /reports/me`
 
-**Tipo de Gráfico:** Recharts - PieChart + Material-UI Cards
+**Tipo de Gráfico:** Recharts - [PieChart](https://recharts.github.io/en-US/examples/PieChartWithCustomizedLabel/) + [Material-UI Cards](https://mui.com/material-ui/react-card/)
 
 ```typescript
 interface ReportsStatus {
@@ -1000,33 +1254,54 @@ interface ReportsStatus {
 }
 ```
 
-**Configuração:**
-- Material-UI Cards para contadores
-- Material-UI LinearProgress para progresso
-- Recharts PieChart para distribuição por tipo
+**Dados do Gráfico:**
+- **Cards de status:** Mostram quantidade por status
+  - PENDING (Amarelo): Relatórios pendentes
+  - PROCESSING (Azul): Em processamento
+  - COMPLETED (Verde): Concluídos
+  - FAILED (Vermelho): Falhados
+- **Gráfico de pizza:** Distribuição por tipo de relatório
+  - ENERGY_CONSUMPTION: Consumo de energia
+  - DEVICE_STATUS: Status de dispositivos
+  - ROOM_USAGE: Uso de salas
+  - INCIDENTS: Incidentes
+- **Lista de relatórios recentes:** Com barra de progresso para os que estão em processamento
+- **Progress:** Percentual de conclusão (0-100)
 
-```tsx
-// Cards com KPIs
-<Grid container spacing={2}>
-  {statusCounts.map(status => (
-    <Grid item xs={3}>
-      <Card>
-        <CardContent>
-          <Typography variant="h4">{status.count}</Typography>
-          <Typography color="textSecondary">{status.label}</Typography>
-        </CardContent>
-      </Card>
-    </Grid>
-  ))}
-</Grid>
-
-// Lista com progresso
-{processingReports.map(report => (
-  <Box>
-    <Typography>{report.title}</Typography>
-    <LinearProgress variant="determinate" value={report.progress} />
-  </Box>
-))}
+**Exemplo de dados:**
+```json
+{
+  "byStatus": {
+    "PENDING": 3,
+    "PROCESSING": 2,
+    "COMPLETED": 45,
+    "FAILED": 1
+  },
+  "byType": {
+    "ENERGY_CONSUMPTION": 20,
+    "DEVICE_STATUS": 15,
+    "ROOM_USAGE": 10,
+    "INCIDENTS": 6
+  },
+  "recentReports": [
+    {
+      "id": "uuid-1",
+      "title": "Relatório de Consumo Mensal",
+      "type": "ENERGY_CONSUMPTION",
+      "status": "PROCESSING",
+      "progress": 65,
+      "createdAt": "2025-01-11T10:30:00Z"
+    },
+    {
+      "id": "uuid-2",
+      "title": "Status de Dispositivos",
+      "type": "DEVICE_STATUS",
+      "status": "COMPLETED",
+      "progress": 100,
+      "createdAt": "2025-01-11T09:00:00Z"
+    }
+  ]
+}
 ```
 
 ---
@@ -1035,7 +1310,7 @@ interface ReportsStatus {
 
 **Fonte de Dados:** `GET /reports/me`
 
-**Tipo de Gráfico:** Recharts - ScatterChart (Timeline)
+**Tipo de Gráfico:** Recharts - [ScatterChart](https://recharts.github.io/en-US/examples/SimpleScatterChart/) (Timeline)
 
 ```typescript
 interface ReportsTimeline {
@@ -1053,22 +1328,55 @@ interface ReportsTimeline {
 }
 ```
 
-**Configuração (Recharts):**
-```tsx
-<ScatterChart>
-  <CartesianGrid strokeDasharray="3 3" />
-  <XAxis dataKey="createdAt" type="category" />
-  <YAxis dataKey="duration" label="Duração (s)" />
-  <Tooltip content={<CustomReportTooltip />} />
-  <Scatter data={reports} fill="#667eea">
-    {reports.map((entry, index) => (
-      <Cell 
-        key={`cell-${index}`}
-        fill={getStatusColor(entry.status)}
-      />
-    ))}
-  </Scatter>
-</ScatterChart>
+**Dados do Gráfico:**
+- **Eixo X:** Data de criação (`createdAt`)
+- **Eixo Y:** Duração da geração em segundos (`duration`)
+- **Pontos:** Cada relatório é um ponto no gráfico
+- **Cores por status:**
+  - COMPLETED (Roxo #667eea): Relatório concluído
+  - FAILED (Vermelho #ef4444): Falha na geração
+  - PROCESSING (Azul #3b82f6): Em processamento
+  - PENDING (Amarelo #f59e0b): Aguardando
+- **Linha de referência:** `avgGenerationTime` mostra tempo médio de geração
+- **Tooltip:** Título, tipo, formato, tempo de geração, status
+
+**Exemplo de dados:**
+```json
+{
+  "reports": [
+    {
+      "id": "uuid-1",
+      "title": "Relatório Consumo Janeiro",
+      "type": "ENERGY_CONSUMPTION",
+      "format": "PDF",
+      "createdAt": "2025-01-10T10:00:00Z",
+      "completedAt": "2025-01-10T10:02:35Z",
+      "duration": 155,
+      "status": "COMPLETED"
+    },
+    {
+      "id": "uuid-2",
+      "title": "Status Dispositivos",
+      "type": "DEVICE_STATUS",
+      "format": "EXCEL",
+      "createdAt": "2025-01-10T14:00:00Z",
+      "completedAt": "2025-01-10T14:00:45Z",
+      "duration": 45,
+      "status": "COMPLETED"
+    },
+    {
+      "id": "uuid-3",
+      "title": "Uso de Salas Semanal",
+      "type": "ROOM_USAGE",
+      "format": "PDF",
+      "createdAt": "2025-01-11T09:00:00Z",
+      "completedAt": null,
+      "duration": null,
+      "status": "FAILED"
+    }
+  ],
+  "avgGenerationTime": 85
+}
 ```
 
 ---
@@ -1079,7 +1387,7 @@ interface ReportsTimeline {
 
 **Fonte de Dados:** `GET /buildings` + stats de cada
 
-**Tipo de Gráfico:** Recharts - RadarChart
+**Tipo de Gráfico:** Recharts - [RadarChart](https://recharts.github.io/en-US/examples/SimpleRadarChart/)
 
 ```typescript
 interface BuildingComparison {
@@ -1098,36 +1406,50 @@ interface BuildingComparison {
 }
 ```
 
-**Configuração (Recharts):**
-```tsx
-<RadarChart data={metricsData}>
-  <PolarGrid />
-  <PolarAngleAxis dataKey="metric" />
-  <PolarRadiusAxis angle={90} domain={[0, 100]} />
-  <Radar 
-    name="Prédio A" 
-    dataKey="buildingA" 
-    stroke="#667eea" 
-    fill="#667eea" 
-    fillOpacity={0.6} 
-  />
-  <Radar 
-    name="Prédio B" 
-    dataKey="buildingB" 
-    stroke="#10b981" 
-    fill="#10b981" 
-    fillOpacity={0.6} 
-  />
-  <Radar 
-    name="Prédio C" 
-    dataKey="buildingC" 
-    stroke="#f59e0b" 
-    fill="#f59e0b" 
-    fillOpacity={0.6} 
-  />
-  <Legend />
-  <Tooltip />
-</RadarChart>
+**Dados do Gráfico:**
+- **Formato:** Gráfico radar (spider/polar) com múltiplos polígonos sobrepostos
+- **Eixos radiais:** Um para cada métrica
+  - Eficiência Energética (0-100)
+  - Uptime de Dispositivos (%)
+  - Uso de Automação (%)
+  - Taxa de Ocupação (%)
+  - Score de Manutenção (0-100)
+  - Custo por m² (normalizado 0-100)
+- **Polígonos:** Um para cada prédio sendo comparado
+- **Cores:** Diferente para cada prédio (ex: Roxo, Verde, Amarelo)
+- **Área preenchida:** Opacidade 0.6 para visualizar sobreposições
+- **Comparação:** Facilita identificar pontos fortes e fracos de cada prédio
+
+**Exemplo de dados:**
+```json
+{
+  "buildings": [
+    {
+      "id": "uuid-1",
+      "name": "Prédio Central",
+      "metrics": {
+        "energyEfficiency": 85,
+        "deviceUptime": 92,
+        "automationUsage": 78,
+        "occupancyRate": 88,
+        "maintenanceScore": 75,
+        "costPerM2": 45.50
+      }
+    },
+    {
+      "id": "uuid-2",
+      "name": "Bloco A",
+      "metrics": {
+        "energyEfficiency": 72,
+        "deviceUptime": 88,
+        "automationUsage": 65,
+        "occupancyRate": 95,
+        "maintenanceScore": 82,
+        "costPerM2": 38.20
+      }
+    }
+  ]
+}
 ```
 
 ---
@@ -1136,7 +1458,7 @@ interface BuildingComparison {
 
 **Fonte de Dados:** `GET /energy/buildings/:id/stats` (últimos 90 dias)
 
-**Tipo de Gráfico:** Recharts - ComposedChart (Line + Area de confiança)
+**Tipo de Gráfico:** Recharts - [Line](https://recharts.github.io/en-US/examples/SimpleLineChart/)
 
 ```typescript
 interface ConsumptionTrend {
@@ -1156,10 +1478,36 @@ interface ConsumptionTrend {
 }
 ```
 
-**Configuração:**
-- Linha real + Linha de tendência
-- Marcadores de anomalias
-- Área de confiança
+**Dados do Gráfico:**
+- **Linha real:** Consumo diário real em kWh (`kwh`)
+- **Linha de tendência:** Consumo previsto/esperado (`predictedKwh`)
+- **Eixo X:** Datas dos últimos 90 dias
+- **Eixo Y:** Consumo em kWh
+- **Marcadores de anomalias:** Pontos onde `deviation` > 20% (positiva ou negativa)
+- **Área de confiança:** Zona entre valores máximo e mínimo esperados
+- **Indicadores:**
+  - Tendência: 'increasing' (↑), 'decreasing' (↓), ou 'stable' (→)
+  - Taxa de mudança: `changeRate` (% por mês)
+  - Projeção: Consumo estimado para fim do mês
+
+**Exemplo de dados:**
+```json
+{
+  "daily": [
+    { "date": "2024-10-13", "kwh": 320.5, "predictedKwh": 315.0 },
+    { "date": "2024-10-14", "kwh": 298.2, "predictedKwh": 310.0 },
+    { "date": "2024-10-15", "kwh": 450.8, "predictedKwh": 312.0 },
+    { "date": "2025-01-11", "kwh": 335.5, "predictedKwh": 340.0 }
+  ],
+  "trend": "increasing",
+  "changeRate": 3.5,
+  "projectedMonthEnd": 9850,
+  "anomalies": [
+    { "date": "2024-10-15", "kwh": 450.8, "deviation": 44.4 },
+    { "date": "2024-12-25", "kwh": 180.5, "deviation": -42.3 }
+  ]
+}
+```
 
 ---
 
@@ -1167,7 +1515,7 @@ interface ConsumptionTrend {
 
 **Fonte de Dados:** Histórico de múltiplos anos
 
-**Tipo de Gráfico:** Multi-Line Chart
+**Tipo de Gráfico:** Recharts - [Line Chart](https://recharts.github.io/en-US/examples/SimpleLineChart/)
 
 ```typescript
 interface YearOverYearComparison {
@@ -1185,11 +1533,50 @@ interface YearOverYearComparison {
 }
 ```
 
-**Configuração:**
-- Uma linha por ano
-- Eixo X: Meses
-- Eixo Y: kWh
-- Destaque no ano atual
+**Dados do Gráfico:**
+- **Eixo X:** Meses (1 a 12 ou 'Jan' a 'Dez')
+- **Eixo Y:** Consumo em kWh
+- **Linhas múltiplas:** Uma linha para cada ano
+  - Ano atual: Linha destacada (cor primária, mais grossa)
+  - Anos anteriores: Linhas secundárias (cores suavizadas)
+- **Comparação:** Permite visualizar padrões sazonais e mudanças ano a ano
+- **Métricas por ano:** Total anual e média mensal
+- **Correlação:** `avgTemp` pode ser usado para análise de influência da temperatura
+
+**Exemplo de dados:**
+```json
+{
+  "years": [
+    {
+      "year": 2025,
+      "monthlyData": [
+        { "month": 1, "kwh": 8500, "cost": 6800, "avgTemp": 28.5 },
+        { "month": 2, "kwh": 7800, "cost": 6240, "avgTemp": 27.2 }
+      ],
+      "total": 16300,
+      "average": 8150
+    },
+    {
+      "year": 2024,
+      "monthlyData": [
+        { "month": 1, "kwh": 8200, "cost": 6560, "avgTemp": 29.1 },
+        { "month": 2, "kwh": 7500, "cost": 6000, "avgTemp": 28.0 },
+        { "month": 12, "kwh": 9100, "cost": 7280, "avgTemp": 30.5 }
+      ],
+      "total": 98500,
+      "average": 8208
+    },
+    {
+      "year": 2023,
+      "monthlyData": [
+        { "month": 1, "kwh": 7800, "cost": 6240, "avgTemp": 27.8 }
+      ],
+      "total": 95200,
+      "average": 7933
+    }
+  ]
+}
+```
 
 ---
 
@@ -1197,7 +1584,7 @@ interface YearOverYearComparison {
 
 **Fonte de Dados:** Cálculo baseado em consumo vs área útil
 
-**Tipo de Gráfico:** Scatter Plot (Dispersão)
+**Tipo de Gráfico:** Recharts - [Scatter Plot](https://recharts.github.io/en-US/examples/ScatterAndLineOfBestFit/) (Dispersão)
 
 ```typescript
 interface EnergyEfficiency {
@@ -1219,12 +1606,63 @@ interface EnergyEfficiency {
 }
 ```
 
-**Configuração:**
-- Eixo X: Área (m²)
-- Eixo Y: kWh/m²
-- Tamanho da bolha: Número de dispositivos
-- Cor: Nível de eficiência
-- Linhas de benchmark
+**Dados do Gráfico:**
+- **Eixo X:** Área do prédio em m²
+- **Eixo Y:** Consumo por m² (kWh/m²)
+- **Pontos/Bolhas:** Cada prédio é representado por uma bolha
+- **Tamanho da bolha:** Proporcional ao número de dispositivos (ou `deviceDensity`)
+- **Cor da bolha:** Baseada no nível de eficiência
+  - Verde (#10b981): `efficiency` > 80 (excelente)
+  - Azul (#3b82f6): 60-80 (bom)
+  - Amarelo (#f59e0b): 40-60 (médio)
+  - Vermelho (#ef4444): < 40 (ruim)
+- **Linhas de benchmark:** Horizontais marcando limites
+  - Excelente: < 15 kWh/m²
+  - Bom: 15-25 kWh/m²
+  - Médio: 25-40 kWh/m²
+  - Ruim: > 40 kWh/m²
+- **Tooltip:** Nome, área, kWh/m², custo/m², densidade de dispositivos, score de eficiência
+
+**Exemplo de dados:**
+```json
+{
+  "buildings": [
+    {
+      "id": "uuid-1",
+      "name": "Prédio Central",
+      "area": 5000,
+      "kwhPerM2": 18.5,
+      "costPerM2": 14.80,
+      "deviceDensity": 0.05,
+      "efficiency": 85
+    },
+    {
+      "id": "uuid-2",
+      "name": "Bloco A",
+      "area": 3200,
+      "kwhPerM2": 32.8,
+      "costPerM2": 26.24,
+      "deviceDensity": 0.047,
+      "efficiency": 52
+    },
+    {
+      "id": "uuid-3",
+      "name": "Laboratório",
+      "area": 1800,
+      "kwhPerM2": 45.2,
+      "costPerM2": 36.16,
+      "deviceDensity": 0.156,
+      "efficiency": 38
+    }
+  ],
+  "benchmarks": {
+    "excellent": 15,
+    "good": 25,
+    "average": 40,
+    "poor": 55
+  }
+}
+```
 
 ---
 
@@ -1234,7 +1672,7 @@ interface EnergyEfficiency {
 
 **Fonte de Dados:** `GET /energy/floors/:id/stats` para todos os andares
 
-**Tipo de Gráfico:** Floor Heatmap
+**Tipo de Gráfico:** Nivo - [HeatMap](https://nivo.rocks/heatmap/)
 
 ```typescript
 interface FloorEnergyHeatmap {
@@ -1258,11 +1696,53 @@ interface FloorEnergyHeatmap {
 }
 ```
 
-**Configuração:**
-- Vista de planta baixa
-- Cores: Azul (baixo) → Vermelho (alto)
-- Tooltip com detalhes da sala
-- Selecionável por andar
+**Dados do Gráfico:**
+- **Visualização:** Planta baixa do andar com salas representadas em grid
+- **Posicionamento:** Coordenadas `x` e `y` definem localização de cada sala no grid
+- **Intensidade de cor:** Baseada no consumo energético
+  - Azul claro (#e0f2fe): Consumo muito baixo (0-25% do máximo)
+  - Verde (#10b981): Consumo baixo (25-50%)
+  - Amarelo (#f59e0b): Consumo médio (50-75%)
+  - Laranja (#fb923c): Consumo alto (75-90%)
+  - Vermelho (#ef4444): Consumo muito alto (>90%)
+- **Seletor de andar:** Dropdown para escolher qual andar visualizar
+- **Tooltip:** Número da sala, consumo em kWh, intensidade, temperatura (se disponível)
+- **Totais:** Consumo total do andar e valor máximo exibidos
+
+**Exemplo de dados:**
+```json
+{
+  "building": {
+    "id": "uuid-building",
+    "name": "Prédio Central"
+  },
+  "floors": [
+    {
+      "floorNumber": 0,
+      "rooms": [
+        {
+          "roomId": "uuid-1",
+          "roomNumber": "101",
+          "position": { "x": 0, "y": 0 },
+          "energyKwh": 25.5,
+          "intensity": 85,
+          "temperature": 23.5
+        },
+        {
+          "roomId": "uuid-2",
+          "roomNumber": "102",
+          "position": { "x": 1, "y": 0 },
+          "energyKwh": 8.2,
+          "intensity": 28,
+          "temperature": 22.1
+        }
+      ],
+      "totalKwh": 320.5,
+      "maxKwh": 35.8
+    }
+  ]
+}
+```
 
 ---
 
@@ -1292,11 +1772,68 @@ interface DeviceActivityMap {
 }
 ```
 
-**Configuração:**
-- Ícones por tipo de dispositivo
-- Cor baseada em status
-- Click para detalhes
-- Atualização em tempo real (WebSocket)
+**Dados do Gráfico:**
+- **Visualização:** Mapa interativo da planta do andar
+- **Ícones:** Cada dispositivo representado por ícone específico do tipo
+  - 💡 LIGHT (Lâmpada)
+  - ❄️ AC (Ar condicionado)
+  - 📽️ PROJECTOR (Projetor)
+  - 🔊 SPEAKER (Alto-falante)
+  - 🔒 LOCK (Fechadura)
+  - 📡 SENSOR (Sensor)
+- **Cores por status:**
+  - Verde (#10b981): ON - Dispositivo ativo
+  - Cinza (#6b7280): OFF - Dispositivo desligado
+  - Amarelo (#f59e0b): STANDBY - Em espera
+  - Vermelho (#ef4444): ERROR - Com erro
+- **Posicionamento:** Coordenadas `x` e `y` definem localização exata
+- **Interatividade:**
+  - Click: Abre detalhes do dispositivo
+  - Hover: Tooltip com nome, tipo, status, potência atual
+- **Atualização:** Tempo real via WebSocket
+
+**Exemplo de dados:**
+```json
+{
+  "floors": [
+    {
+      "floorNumber": 0,
+      "rooms": [
+        {
+          "roomId": "uuid-room-1",
+          "roomNumber": "101",
+          "devices": [
+            {
+              "deviceId": "uuid-dev-1",
+              "deviceName": "Luz Principal",
+              "type": "LIGHT",
+              "status": "ON",
+              "position": { "x": 2.5, "y": 3.0 },
+              "currentPower": 45
+            },
+            {
+              "deviceId": "uuid-dev-2",
+              "deviceName": "AC Sala 101",
+              "type": "AC",
+              "status": "ON",
+              "position": { "x": 1.0, "y": 5.0 },
+              "currentPower": 1200
+            },
+            {
+              "deviceId": "uuid-dev-3",
+              "deviceName": "Projetor",
+              "type": "PROJECTOR",
+              "status": "STANDBY",
+              "position": { "x": 4.5, "y": 2.5 },
+              "currentPower": 8
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
+```
 
 ---
 
@@ -1304,7 +1841,7 @@ interface DeviceActivityMap {
 
 **Fonte de Dados:** Sensores de temperatura
 
-**Tipo de Gráfico:** Thermal Heatmap
+**Tipo de Gráfico:** Nivo - [HeatMap](https://nivo.rocks/heatmap/)
 
 ```typescript
 interface ThermalMap {
@@ -1328,10 +1865,55 @@ interface ThermalMap {
 }
 ```
 
-**Configuração:**
-- Gradiente de cores (azul → vermelho)
-- Isolinhas de temperatura
-- Marcação de zonas de conforto
+**Dados do Gráfico:**
+- **Grid de temperatura:** Matriz bidimensional representando pontos de medição
+- **Coordenadas:** `x` e `y` definem posição no grid do andar
+- **Valores por ponto:**
+  - Temperatura em °C
+  - Umidade em %
+- **Gradiente de cores:**
+  - Azul escuro (#1e40af): Muito frio (< 18°C)
+  - Azul claro (#60a5fa): Frio (18-20°C)
+  - Verde (#10b981): Confortável (20-24°C)
+  - Amarelo (#f59e0b): Morno (24-26°C)
+  - Laranja (#fb923c): Quente (26-28°C)
+  - Vermelho (#ef4444): Muito quente (> 28°C)
+- **Isolinhas:** Linhas conectando pontos de mesma temperatura
+- **Zonas de conforto:** Área destacada dentro da faixa ótima (20-24°C)
+- **Métricas:**
+  - Temperatura média, máxima e mínima do andar
+  - Percentual de área em zona de conforto
+
+**Exemplo de dados:**
+```json
+{
+  "timestamp": "2025-01-11T14:30:00Z",
+  "floors": [
+    {
+      "floorNumber": 0,
+      "temperatureGrid": [
+        [
+          { "x": 0, "y": 0, "temperature": 22.5, "humidity": 55 },
+          { "x": 0, "y": 1, "temperature": 23.0, "humidity": 52 },
+          { "x": 0, "y": 2, "temperature": 24.5, "humidity": 58 }
+        ],
+        [
+          { "x": 1, "y": 0, "temperature": 21.8, "humidity": 60 },
+          { "x": 1, "y": 1, "temperature": 26.2, "humidity": 48 },
+          { "x": 1, "y": 2, "temperature": 25.0, "humidity": 50 }
+        ]
+      ],
+      "avgTemperature": 23.8,
+      "maxTemperature": 26.2,
+      "minTemperature": 21.8
+    }
+  ],
+  "comfort": {
+    "optimalRange": { "min": 20, "max": 24 },
+    "currentComfort": 68.5
+  }
+}
+```
 
 ---
 
@@ -1339,54 +1921,13 @@ interface ThermalMap {
 
 ### Chart Libraries:
 
-#### 1. **Recharts** (Principal) ⭐
-```bash
-npm install recharts
-```
-**Uso:**
-- ✅ Line Charts (históricos, tendências)
-- ✅ Area Charts (curva de carga, consumo acumulado)
-- ✅ Bar Charts (comparativos, rankings)
-- ✅ Pie/Donut Charts (distribuições, status)
-- ✅ Composed Charts (múltiplas visualizações)
-- ✅ Scatter Charts (correlações)
-- ✅ Radar Charts (comparativos multidimensionais)
+#### **Recharts** (Principal) ⭐
 
-**Responsável por:** ~85% dos gráficos da aplicação
+#### **Nivo** (Gráficos Avançados) ⭐
 
 ---
 
-#### 2. **Nivo** (Gráficos Avançados) ⭐
-```bash
-npm install @nivo/core @nivo/heatmap @nivo/calendar @nivo/treemap @nivo/waffle
-```
-**Uso:**
-- ✅ HeatMaps (consumo semanal, temperatura)
-- ✅ Calendar HeatMaps (padrões anuais)
-- ✅ TreeMaps (hierarquia de dispositivos/salas)
-- ✅ Waffle Charts (ocupação visual)
-- ✅ Bump Charts (rankings ao longo do tempo)
-
-**Responsável por:** ~15% dos gráficos (visualizações complexas)
-
----
-
-### 📦 Instalação Completa:
-
-```bash
-# Recharts (principal)
-npm install recharts
-
-# Nivo (gráficos avançados)
-npm install @nivo/core @nivo/heatmap @nivo/calendar @nivo/treemap @nivo/waffle
-
-# TypeScript types
-npm install --save-dev @types/recharts
-```
-
----
-
-### 🎨 Paleta de Cores Padrão:
+### 🎨 Paleta de Cores Padrão (exemplo):
 
 ```typescript
 export const chartColors = {
@@ -1428,38 +1969,6 @@ export const chartColors = {
   }
 };
 ```
-
----
-
-## 📊 Priorização de Implementação
-
-### Fase 1 - MVP (Essenciais):
-1. ✅ Dashboard KPIs
-2. ✅ Consumo em Tempo Real (Gauge)
-3. ✅ Histórico 24h (Line Chart)
-4. ✅ Consumo por Tipo (Doughnut)
-5. ✅ Status de Dispositivos (Pie)
-
-### Fase 2 - Core:
-6. Consumo por Prédio (Bar)
-7. Comparativo Mensal (Bar)
-8. Dispositivos por Tipo (Bar)
-9. Ocupação de Salas (Grid)
-10. Execuções de Automação (Line+Bar)
-
-### Fase 3 - Avançado:
-11. Curva de Carga (Area)
-12. Heatmap Semanal
-13. Mapa de Calor por Andar
-14. Tendências e Projeções
-15. Comparativos Ano a Ano
-
-### Fase 4 - Analytics:
-16. Eficiência Energética (Scatter)
-17. Comparativo de Prédios (Radar)
-18. Mapa de Dispositivos Ativos
-19. Timeline de Offline
-20. Análises Preditivas
 
 ---
 
