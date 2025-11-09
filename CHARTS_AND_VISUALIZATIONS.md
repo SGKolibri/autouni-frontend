@@ -936,78 +936,14 @@ interface ThermalMap {
 
 ---
 
-## 📋 Resumo de Bibliotecas Recomendadas
+## 📋 Biblioteca Recomendada
 
-### Chart Libraries:
+### Chart Library:
 
-1. **Recharts** (Recomendado)
-   - Componentes React nativos
-   - Responsivo
-   - Customizável
-   - Charts: Line, Bar, Area, Pie, Radar, Scatter, Treemap
-
-2. **Chart.js** com react-chartjs-2
-   - Leve e rápido
-   - Grande comunidade
-   - Boa documentação
-
-3. **ApexCharts** com react-apexcharts
-   - Gráficos modernos e bonitos
-   - Muitas opções de customização
-   - Animações suaves
-
-4. **Nivo**
+**Nivo**
    - Focado em D3.js
    - Gráficos complexos e bonitos
    - SVG e Canvas
-
-### Mapas e Floorplans:
-
-1. **react-floorplan** ou custom SVG
-   - Plantas baixas interativas
-   - Customizável
-
-2. **Konva** (react-konva)
-   - Canvas HTML5
-   - Interativo e performático
-
----
-
-## 🎨 Paleta de Cores Sugerida
-
-```typescript
-const chartColors = {
-  primary: '#667eea',      // Azul principal
-  secondary: '#764ba2',    // Roxo
-  success: '#10b981',      // Verde
-  warning: '#f59e0b',      // Amarelo
-  danger: '#ef4444',       // Vermelho
-  info: '#3b82f6',         // Azul
-  
-  // Gradientes
-  energy: ['#10b981', '#f59e0b', '#ef4444'],      // Verde → Amarelo → Vermelho
-  temperature: ['#3b82f6', '#10b981', '#f59e0b', '#ef4444'],  // Azul → Verde → Amarelo → Vermelho
-  
-  // Por tipo de dispositivo
-  devices: {
-    LIGHT: '#fbbf24',
-    AC: '#3b82f6',
-    PROJECTOR: '#8b5cf6',
-    SPEAKER: '#ec4899',
-    LOCK: '#6b7280',
-    SENSOR: '#10b981',
-    OTHER: '#64748b'
-  },
-  
-  // Por status
-  status: {
-    ON: '#10b981',
-    OFF: '#6b7280',
-    STANDBY: '#f59e0b',
-    ERROR: '#ef4444'
-  }
-};
-```
 
 ---
 
