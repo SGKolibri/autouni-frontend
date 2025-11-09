@@ -14,8 +14,8 @@ export const useAuth = () => {
     },
     onSuccess: (data) => {
       loginStore(data.user, {
-        access_token: data.access_token,
-        refresh_token: data.refresh_token,
+        accessToken: data.accessToken,
+        refreshToken: data.refreshToken,
       });
       navigate('/');
     },
