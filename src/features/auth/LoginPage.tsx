@@ -42,23 +42,21 @@ const LoginPage = () => {
     resolver: zodResolver(loginSchema),
   });
 
-  const onSubmit = async (data: LoginFormData) => {
+  const onSubmit = async (formData: LoginFormData) => {
     setLoading(true);
     setError(null);
 
     try {
-      console.log("🔐 Tentando fazer login...");
-      const response = await apiService.post<{ user: any; accessToken: string; refreshToken: string }>('/auth/login', data);
-      const { user, accessToken, refreshToken } = response.data;
+      const credentials: { email: string; password: string } = {
+        email: formData.email!,
+        password: formData.password!,
+      };
+      const response = await apiService.login(credentials);
+      const { user, access_token, refresh_token } = response;
 
-      console.log("✅ Login bem-sucedido:", { user, accessToken: accessToken?.substring(0, 20) + '...' });
-      
-      login(user, { accessToken, refreshToken });
-      
-      console.log("🔄 Navegando para /");
+      login(user, { access_token, refresh_token });
       navigate('/');
     } catch (err: any) {
-      console.error("❌ Erro no login:", err);
       setError(err.response?.data?.message || 'Erro ao fazer login. Verifique suas credenciais.');
     } finally {
       setLoading(false);

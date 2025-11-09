@@ -70,11 +70,13 @@ export const useWebSocket = () => {
       if (!message.online) {
         addNotification({
           id: `offline-${message.deviceId}-${Date.now()}`,
+          userId: 'system', // Notificação do sistema
           type: NotificationType.WARNING,
           title: 'Dispositivo Offline',
           message: `O dispositivo ${message.deviceId} está offline`,
           read: false,
           createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
         });
       }
     });
@@ -83,11 +85,13 @@ export const useWebSocket = () => {
     socketRef.current.on('energy:alert', (message: any) => {
       addNotification({
         id: `energy-alert-${Date.now()}`,
+        userId: 'system', // Notificação do sistema
         type: NotificationType.WARNING,
         title: 'Alerta de Consumo',
         message: message.message || 'Consumo elevado detectado',
         read: false,
         createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
       });
     });
 
@@ -95,11 +99,13 @@ export const useWebSocket = () => {
     socketRef.current.on('notification', (message: WebSocketMessage) => {
       addNotification({
         id: `notification-${Date.now()}`,
+        userId: 'system', // Notificação do sistema
         type: NotificationType.INFO,
         title: 'Notificação do Sistema',
         message: message.data.message || 'Nova notificação',
         read: false,
         createdAt: message.timestamp,
+        updatedAt: message.timestamp,
       });
     });
 

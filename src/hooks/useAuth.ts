@@ -4,25 +4,18 @@ import { useAuthStore } from '@store/authStore';
 import apiService from '@services/api';
 import { LoginCredentials, User } from '@/types';
 
-interface LoginResponse {
-  user: User;
-  accessToken: string;
-  refreshToken: string;
-}
-
 export const useAuth = () => {
   const navigate = useNavigate();
   const { user, isAuthenticated, login: loginStore, logout: logoutStore } = useAuthStore();
 
   const loginMutation = useMutation({
     mutationFn: async (credentials: LoginCredentials) => {
-      const response = await apiService.post<LoginResponse>('/auth/login', credentials);
-      return response.data;
+      return await apiService.login(credentials);
     },
     onSuccess: (data) => {
       loginStore(data.user, {
-        accessToken: data.accessToken,
-        refreshToken: data.refreshToken,
+        access_token: data.access_token,
+        refresh_token: data.refresh_token,
       });
       navigate('/');
     },
@@ -30,7 +23,7 @@ export const useAuth = () => {
 
   const logoutMutation = useMutation({
     mutationFn: async () => {
-      await apiService.post('/auth/logout');
+      await apiService.logout();
     },
     onSuccess: () => {
       logoutStore();

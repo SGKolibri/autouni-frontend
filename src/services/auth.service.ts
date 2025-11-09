@@ -1,37 +1,21 @@
 import apiService from './api';
-import { User, LoginCredentials, AuthTokens } from '@/types';
-
-export interface LoginResponse {
-  user: User;
-  accessToken: string;
-  refreshToken: string;
-}
-
-export interface RegisterData {
-  name: string;
-  email: string;
-  password: string;
-  role?: string;
-}
+import { User, LoginCredentials, LoginResponse, RegisterCredentials } from '@/types';
 
 class AuthService {
   async login(credentials: LoginCredentials): Promise<LoginResponse> {
-    const response = await apiService.post<LoginResponse>('/auth/login', credentials);
-    return response.data;
+    return await apiService.login(credentials);
   }
 
   async logout(): Promise<void> {
-    await apiService.post('/auth/logout');
+    await apiService.logout();
   }
 
-  async register(data: RegisterData): Promise<LoginResponse> {
-    const response = await apiService.post<LoginResponse>('/auth/register', data);
-    return response.data;
+  async register(data: RegisterCredentials): Promise<User> {
+    return await apiService.register(data);
   }
 
-  async refreshToken(refreshToken: string): Promise<AuthTokens> {
-    const response = await apiService.post<AuthTokens>('/auth/refresh', { refreshToken });
-    return response.data;
+  async refreshToken(refreshToken: string): Promise<{ access_token: string; refresh_token: string }> {
+    return await apiService.refreshToken(refreshToken);
   }
 
   async getCurrentUser(): Promise<User> {
