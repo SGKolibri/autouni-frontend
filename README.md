@@ -611,17 +611,7 @@ Este projeto é parte de um trabalho acadêmico.
 
 **Equipe AutoUni** - 2025
 
-- [Seu Nome](https://github.com/seu-usuario)
-- [Colaborador 1](https://github.com/colaborador1)
-- [Colaborador 2](https://github.com/colaborador2)
-
----
-
-## 📞 Suporte
-
-- 📧 Email: autouni@example.com
-- 💬 Issues: [GitHub Issues](https://github.com/seu-usuario/autouni-frontend/issues)
-- 📚 Docs: [Documentação Completa](docs/)
+- [Samuel Custódio](https://github.com/SGKolibri)
 
 ---
 
@@ -637,21 +627,13 @@ Este projeto é parte de um trabalho acadêmico.
 ## 📊 Status do Projeto
 
 - ✅ Frontend: 100% completo
-- 🔄 Backend: Em desenvolvimento
+- ✅ Backend: 100% completo
 - 🔄 Integração ESP32: Em desenvolvimento
 - 📅 Previsão de conclusão: [Data]
 
 ---
 
 **⭐ Se este projeto foi útil, dê uma estrela!**
-
----
-
-## 📚 Documentação Adicional
-
-- [PROJECT_STRUCTURE.md](PROJECT_STRUCTURE.md) - Estrutura detalhada
-- [DEPLOYMENT.md](DEPLOYMENT.md) - Guia completo de deploy
-- [FINAL_SUMMARY.md](FINAL_SUMMARY.md) - Resumo final do projeto
 
 ---
 
