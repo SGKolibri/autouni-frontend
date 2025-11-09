@@ -21,7 +21,7 @@
 ### Resumo geral:
 
 -  Total de gráficos no documento: 30
--  Gráficos únicos: 13
+-  Gráficos únicos: 13 (Necessitamos de designs únicos e contextualizados desses gráficos)
 -  Reutilização média: Cada tipo é usado ~2.3 vezes
   
 ---
