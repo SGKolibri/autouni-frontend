@@ -103,7 +103,7 @@ interface EnergyHistoryData {
 
 **Fonte de Dados:** `GET /energy/buildings/:buildingId/stats`
 
-**Tipo de Gráfico:** Doughnut Chart (Rosca)
+**Tipo de Gráfico:** Gráfico Donut
 
 ```typescript
 interface EnergyByDeviceType {
