@@ -2,7 +2,6 @@ import { useNavigate, useParams } from "react-router-dom";
 import {
   Box,
   Typography,
-  Grid,
   Card,
   CardContent,
   CardActionArea,
@@ -23,7 +22,7 @@ import {
 } from "@mui/icons-material";
 import { useQuery } from "@tanstack/react-query";
 import apiService from "@services/api";
-import { Floor, RoomType } from "@types/index";
+import { Building, Floor, RoomType } from "@/types";
 import EnergyChart from "@components/charts/EnergyChart";
 
 const FloorDetailPage = () => {
@@ -45,7 +44,7 @@ const FloorDetailPage = () => {
   const { data: building } = useQuery({
     queryKey: ["buildings", floor?.buildingId],
     queryFn: async () => {
-      const response = await apiService.get(`/buildings/${floor?.buildingId}`);
+      const response = await apiService.get<Building>(`/buildings/${floor?.buildingId}`);
       return response.data;
     },
     enabled: !!floor?.buildingId,
@@ -277,7 +276,7 @@ const FloorDetailPage = () => {
         </CardContent>
       </Card>
 
-      {/* Rooms Grid */}
+      {/* Rooms */}
       <Box sx={{ mb: 4 }}>
         <Box
           sx={{

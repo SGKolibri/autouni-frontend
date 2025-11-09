@@ -48,7 +48,7 @@ const LoginPage = () => {
 
     try {
       console.log("🔐 Tentando fazer login...");
-      const response = await apiService.post('/auth/login', data);
+      const response = await apiService.post<{ user: any; accessToken: string; refreshToken: string }>('/auth/login', data);
       const { user, accessToken, refreshToken } = response.data;
 
       console.log("✅ Login bem-sucedido:", { user, accessToken: accessToken?.substring(0, 20) + '...' });

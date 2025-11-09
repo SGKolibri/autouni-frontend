@@ -3,7 +3,6 @@ import {
   Box,
   Typography,
   Paper,
-  Grid,
   FormControl,
   InputLabel,
   Select,
@@ -30,7 +29,7 @@ import {
 } from '@mui/icons-material';
 import { useQuery } from '@tanstack/react-query';
 import apiService from '@services/api';
-import { EnergyStats } from '@types/index';
+import { Building, EnergyComparisonItem, EnergyStats } from '@/types';
 import EnergyChart from '@components/charts/EnergyChart';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from 'recharts';
 import { subDays, format } from 'date-fns';
@@ -62,7 +61,7 @@ const EnergyPage = () => {
   const { data: chartData, isLoading: isLoadingChart } = useQuery({
     queryKey: ['energy', 'chart', period, level, selectedId],
     queryFn: async () => {
-      const response = await apiService.get(`/energy/history?period=${period}&level=${level}&id=${selectedId}`);
+      const response = await apiService.get<any[]>(`/energy/history?period=${period}&level=${level}&id=${selectedId}`);
       return response.data;
     },
   });
@@ -70,16 +69,17 @@ const EnergyPage = () => {
   const { data: buildings } = useQuery({
     queryKey: ['buildings'],
     queryFn: async () => {
-      const response = await apiService.get('/buildings');
+      const response = await apiService.get<Building[]>('/buildings');
       return response.data;
     },
     enabled: level === 'building',
   });
 
+
   const { data: comparison } = useQuery({
     queryKey: ['energy', 'comparison', level],
     queryFn: async () => {
-      const response = await apiService.get(`/energy/comparison?level=${level}`);
+      const response = await apiService.get<EnergyComparisonItem[]>(`/energy/comparison?level=${level}`);
       return response.data;
     },
   });
@@ -121,8 +121,8 @@ const EnergyPage = () => {
 
       {/* Filters */}
       <Paper sx={{ p: 3, mb: 3 }}>
-        <Grid container spacing={2} alignItems="center">
-          <Grid item xs={12} md={4}>
+        <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 2, alignItems: 'center' }}>
+          <Box sx={{ flex: { xs: '1 1 100%', md: '0 0 33.333%' } }}>
             <ToggleButtonGroup
               value={period}
               exclusive
@@ -134,9 +134,9 @@ const EnergyPage = () => {
               <ToggleButton value="week">Semana</ToggleButton>
               <ToggleButton value="month">Mês</ToggleButton>
             </ToggleButtonGroup>
-          </Grid>
+          </Box>
 
-          <Grid item xs={12} md={4}>
+          <Box sx={{ flex: { xs: '1 1 100%', md: '0 0 33.333%' } }}>
             <FormControl fullWidth size="small">
               <InputLabel>Nível</InputLabel>
               <Select
@@ -150,10 +150,10 @@ const EnergyPage = () => {
                 <MenuItem value="room">Por Sala</MenuItem>
               </Select>
             </FormControl>
-          </Grid>
+          </Box>
 
           {level === 'building' && (
-            <Grid item xs={12} md={4}>
+            <Box sx={{ flex: { xs: '1 1 100%', md: '0 0 33.333%' } }}>
               <FormControl fullWidth size="small">
                 <InputLabel>Prédio</InputLabel>
                 <Select
@@ -168,9 +168,9 @@ const EnergyPage = () => {
                   ))}
                 </Select>
               </FormControl>
-            </Grid>
+            </Box>
           )}
-        </Grid>
+        </Box>
       </Paper>
 
       {/* KPI Cards */}

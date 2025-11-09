@@ -15,7 +15,7 @@ import {
 import { ChevronRight, Business } from '@mui/icons-material';
 import { useQuery } from '@tanstack/react-query';
 import apiService from '@services/api';
-import { Building } from '@types/index';
+import { Building } from '@/types';
 
 const BuildingsList = () => {
   const navigate = useNavigate();

@@ -5,12 +5,10 @@ import {
   Paper,
   Tabs,
   Tab,
-  Divider,
   TextField,
   Button,
   Switch,
   FormControlLabel,
-  Grid,
 } from "@mui/material";
 import {
   Save,
@@ -22,7 +20,7 @@ import {
 import { DataGrid, GridColDef } from "@mui/x-data-grid";
 import { useQuery } from "@tanstack/react-query";
 import apiService from "@services/api";
-import { User } from "@types/index";
+import { User } from "@/types";
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -136,34 +134,34 @@ const SettingsPage = () => {
               Configurações de Notificações
             </Typography>
 
-            <Grid container spacing={3} sx={{ mt: 2 }}>
-              <Grid item xs={12}>
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3, mt: 2 }}>
+              <Box>
                 <FormControlLabel
                   control={<Switch defaultChecked />}
                   label="Receber notificações de dispositivos offline"
                 />
-              </Grid>
-              <Grid item xs={12}>
+              </Box>
+              <Box>
                 <FormControlLabel
                   control={<Switch defaultChecked />}
                   label="Alertas de consumo elevado"
                 />
-              </Grid>
-              <Grid item xs={12}>
+              </Box>
+              <Box>
                 <FormControlLabel
                   control={<Switch />}
                   label="Resumo diário por e-mail"
                 />
-              </Grid>
-              <Grid item xs={12}>
+              </Box>
+              <Box>
                 <TextField
                   label="Limite de consumo (kWh)"
                   type="number"
                   fullWidth
                   defaultValue={100}
                 />
-              </Grid>
-            </Grid>
+              </Box>
+            </Box>
 
             <Box sx={{ mt: 3 }}>
               <Button variant="contained" startIcon={<Save />}>
@@ -180,35 +178,37 @@ const SettingsPage = () => {
               Configurações do Sistema
             </Typography>
 
-            <Grid container spacing={3} sx={{ mt: 2 }}>
-              <Grid item xs={12} md={6}>
-                <TextField
-                  label="URL do Backend"
-                  fullWidth
-                  defaultValue="http://localhost:3001"
-                />
-              </Grid>
-              <Grid item xs={12} md={6}>
-                <TextField
-                  label="Tarifa de Energia (R$/kWh)"
-                  type="number"
-                  fullWidth
-                  defaultValue={0.85}
-                />
-              </Grid>
-              <Grid item xs={12}>
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3, mt: 2 }}>
+              <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 3 }}>
+                <Box sx={{ flex: 1 }}>
+                  <TextField
+                    label="URL do Backend"
+                    fullWidth
+                    defaultValue="http://localhost:3001"
+                  />
+                </Box>
+                <Box sx={{ flex: 1 }}>
+                  <TextField
+                    label="Tarifa de Energia (R$/kWh)"
+                    type="number"
+                    fullWidth
+                    defaultValue={0.85}
+                  />
+                </Box>
+              </Box>
+              <Box>
                 <FormControlLabel
                   control={<Switch defaultChecked />}
                   label="Modo de desenvolvimento (logs detalhados)"
                 />
-              </Grid>
-              <Grid item xs={12}>
+              </Box>
+              <Box>
                 <FormControlLabel
                   control={<Switch defaultChecked />}
                   label="Auto-reconexão WebSocket"
                 />
-              </Grid>
-            </Grid>
+              </Box>
+            </Box>
 
             <Box sx={{ mt: 3 }}>
               <Button variant="contained" startIcon={<Save />}>

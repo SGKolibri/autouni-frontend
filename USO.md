@@ -50,7 +50,7 @@ function LoginExample() {
 
 ```typescript
 import ProtectedRoute from '@components/common/ProtectedRoute';
-import { UserRole } from '@types/index';
+import { UserRole } from '@/types';
 
 // Rota acessível apenas para Admin
 <ProtectedRoute requiredRoles={[UserRole.ADMIN]}>
@@ -362,7 +362,7 @@ function RunAutomationButton({ automationId }: { automationId: string }) {
 ```typescript
 import { useMutation } from '@tanstack/react-query';
 import apiService from '@services/api';
-import { ReportType, ReportFormat } from '@types/index';
+import { ReportType, ReportFormat } from '@/types';
 
 function GenerateEnergyReport() {
   const generateMutation = useMutation({

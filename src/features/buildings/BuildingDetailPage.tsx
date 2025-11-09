@@ -2,7 +2,6 @@ import { useNavigate, useParams } from 'react-router-dom';
 import {
   Box,
   Typography,
-  Grid,
   Card,
   CardContent,
   CardActionArea,
@@ -24,7 +23,7 @@ import {
 } from '@mui/icons-material';
 import { useQuery } from '@tanstack/react-query';
 import apiService from '@services/api';
-import { Building } from '@types/index';
+import { Building } from '@/types';
 import EnergyChart from '@components/charts/EnergyChart';
 
 const BuildingDetailPage = () => {
@@ -62,13 +61,13 @@ const BuildingDetailPage = () => {
       <Box>
         <Skeleton width={200} height={40} sx={{ mb: 2 }} />
         <Skeleton width="100%" height={200} sx={{ mb: 3 }} />
-        <Grid container spacing={3}>
+        <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 3 }}>
           {[1, 2, 3].map((i) => (
-            <Grid item xs={12} md={4} key={i}>
+            <Box key={i} sx={{ flex: { xs: '1 1 100%', md: '0 0 33.333%' } }}>
               <Skeleton variant="rectangular" height={180} sx={{ borderRadius: 2 }} />
-            </Grid>
+            </Box>
           ))}
-        </Grid>
+        </Box>
       </Box>
     );
   }
@@ -301,7 +300,7 @@ const BuildingDetailPage = () => {
         </CardContent>
       </Card>
 
-      {/* Floors Grid */}
+      {/* Floors */}
       <Box sx={{ mb: 4 }}>
         <Box sx={{ mb: 3 }}>
           <Typography variant="h5" fontWeight={700} sx={{ mb: 0.5 }}>

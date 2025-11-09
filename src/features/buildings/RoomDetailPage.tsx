@@ -26,7 +26,7 @@ import {
 } from "@mui/icons-material";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import apiService from "@services/api";
-import { Room, Device, DeviceType, DeviceStatus } from "@types/index";
+import { Room, Device, DeviceType, DeviceStatus, DeviceControlResponse } from "@/types";
 import { useDeviceStore } from "@store/deviceStore";
 
 const RoomDetailPage = () => {
@@ -53,7 +53,7 @@ const RoomDetailPage = () => {
       command: string;
       value?: any;
     }) => {
-      const response = await apiService.post(`/devices/${deviceId}/control`, {
+      const response = await apiService.post<DeviceControlResponse>(`/devices/${deviceId}/control`, {
         command,
         value,
       });

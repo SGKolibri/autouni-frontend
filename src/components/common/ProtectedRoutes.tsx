@@ -1,9 +1,9 @@
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAuthStore } from '@store/authStore';
-import { UserRole } from '@types/index';
 import LoadingScreen from './LoadingScreen';
 import { Box, Typography, Button } from '@mui/material';
 import { Lock } from '@mui/icons-material';
+import { UserRole } from '@/types';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;

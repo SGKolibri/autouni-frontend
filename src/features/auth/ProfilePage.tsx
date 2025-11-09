@@ -3,7 +3,6 @@ import {
   Box,
   Typography,
   Paper,
-  Grid,
   TextField,
   Button,
   Avatar,
@@ -117,9 +116,9 @@ const ProfilePage = () => {
         </Alert>
       )}
 
-      <Grid container spacing={3}>
+      <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 3 }}>
         {/* Profile Card */}
-        <Grid item xs={12} md={4}>
+        <Box sx={{ flex: { xs: '1 1 100%', md: '0 0 33.333%' } }}>
           <Card>
             <CardContent sx={{ textAlign: "center" }}>
               <Avatar
@@ -166,10 +165,10 @@ const ProfilePage = () => {
               </Button>
             </CardContent>
           </Card>
-        </Grid>
+        </Box>
 
         {/* Forms */}
-        <Grid item xs={12} md={8}>
+        <Box sx={{ flex: { xs: '1 1 100%', md: '0 0 66.667%' } }}>
           {/* Profile Information */}
           <Paper sx={{ p: 3, mb: 3 }}>
             <Typography variant="h6" fontWeight={600} gutterBottom>
@@ -177,8 +176,8 @@ const ProfilePage = () => {
             </Typography>
 
             <form onSubmit={handleSubmitProfile(onSubmitProfile)}>
-              <Grid container spacing={2} sx={{ mt: 1 }}>
-                <Grid item xs={12}>
+              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 1 }}>
+                <Box>
                   <TextField
                     {...registerProfile("name")}
                     label="Nome Completo"
@@ -186,9 +185,9 @@ const ProfilePage = () => {
                     error={!!profileErrors.name}
                     helperText={profileErrors.name?.message}
                   />
-                </Grid>
+                </Box>
 
-                <Grid item xs={12}>
+                <Box>
                   <TextField
                     {...registerProfile("email")}
                     label="E-mail"
@@ -197,9 +196,9 @@ const ProfilePage = () => {
                     error={!!profileErrors.email}
                     helperText={profileErrors.email?.message}
                   />
-                </Grid>
+                </Box>
 
-                <Grid item xs={12}>
+                <Box>
                   <Button
                     type="submit"
                     variant="contained"
@@ -208,8 +207,8 @@ const ProfilePage = () => {
                   >
                     Salvar Alterações
                   </Button>
-                </Grid>
-              </Grid>
+                </Box>
+              </Box>
             </form>
           </Paper>
 
@@ -223,8 +222,8 @@ const ProfilePage = () => {
             </Box>
 
             <form onSubmit={handleSubmitPassword(onSubmitPassword)}>
-              <Grid container spacing={2}>
-                <Grid item xs={12}>
+              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                <Box>
                   <TextField
                     {...registerPassword("currentPassword")}
                     label="Senha Atual"
@@ -233,9 +232,9 @@ const ProfilePage = () => {
                     error={!!passwordErrors.currentPassword}
                     helperText={passwordErrors.currentPassword?.message}
                   />
-                </Grid>
+                </Box>
 
-                <Grid item xs={12}>
+                <Box>
                   <TextField
                     {...registerPassword("newPassword")}
                     label="Nova Senha"
@@ -244,9 +243,9 @@ const ProfilePage = () => {
                     error={!!passwordErrors.newPassword}
                     helperText={passwordErrors.newPassword?.message}
                   />
-                </Grid>
+                </Box>
 
-                <Grid item xs={12}>
+                <Box>
                   <TextField
                     {...registerPassword("confirmPassword")}
                     label="Confirmar Nova Senha"
@@ -255,9 +254,9 @@ const ProfilePage = () => {
                     error={!!passwordErrors.confirmPassword}
                     helperText={passwordErrors.confirmPassword?.message}
                   />
-                </Grid>
+                </Box>
 
-                <Grid item xs={12}>
+                <Box>
                   <Button
                     type="submit"
                     variant="contained"
@@ -266,12 +265,12 @@ const ProfilePage = () => {
                   >
                     Alterar Senha
                   </Button>
-                </Grid>
-              </Grid>
+                </Box>
+              </Box>
             </form>
           </Paper>
-        </Grid>
-      </Grid>
+        </Box>
+      </Box>
     </Box>
   );
 };

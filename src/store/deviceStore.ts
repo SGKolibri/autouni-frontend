@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { Device, DeviceStatus } from '@types/index';
+import { Device, DeviceStatus } from '@/types';
 
 interface DeviceState {
   devices: Record<string, Device>; // deviceId -> Device
@@ -61,6 +61,7 @@ export const useDeviceStore = create<DeviceState>((set, get) => ({
 
   removeDevice: (deviceId) =>
     set((state) => {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { [deviceId]: removed, ...rest } = state.devices;
       return { devices: rest };
     }),
@@ -102,10 +103,10 @@ export const useDeviceStore = create<DeviceState>((set, get) => ({
     Object.values(get().devices).filter((device) => device.roomId === roomId),
 
   getOnlineDevices: () =>
-    Object.values(get().devices).filter((device) => device.online),
+    Object.values(get().devices).filter((device) => device.status !== DeviceStatus.OFF),
 
   getActiveDevices: () =>
     Object.values(get().devices).filter(
-      (device) => device.status === DeviceStatus.ON && device.online
+      (device) => device.status === DeviceStatus.ON
     ),
 }));

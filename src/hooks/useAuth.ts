@@ -2,7 +2,7 @@ import { useNavigate } from 'react-router-dom';
 import { useMutation } from '@tanstack/react-query';
 import { useAuthStore } from '@store/authStore';
 import apiService from '@services/api';
-import { LoginCredentials, User, AuthTokens } from '@types/index';
+import { LoginCredentials, User } from '@/types';
 
 interface LoginResponse {
   user: User;

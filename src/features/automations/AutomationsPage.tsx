@@ -7,7 +7,6 @@ import {
   Card,
   CardContent,
   CardActions,
-  Grid,
   Chip,
   Switch,
   IconButton,
@@ -33,7 +32,7 @@ import {
 } from '@mui/icons-material';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import apiService from '@services/api';
-import { Automation, TriggerType } from '@types/index';
+import { Automation, TriggerType } from '@/types';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 
@@ -138,7 +137,7 @@ const AutomationsPage = () => {
         </Button>
       </Box>
 
-      {/* Automations Grid */}
+      {/* Automations */}
       {isLoading ? (
         <Typography>Carregando...</Typography>
       ) : automations && automations.length === 0 ? (
@@ -288,8 +287,8 @@ const AutomationsPage = () => {
               </Select>
             </FormControl>
 
-            <Grid container spacing={2}>
-              <Grid item xs={6}>
+            <Box sx={{ display: 'flex', flexDirection: 'row', gap: 2 }}>
+              <Box sx={{ flex: 1 }}>
                 <TextField
                   label="Horário"
                   type="time"
@@ -297,8 +296,8 @@ const AutomationsPage = () => {
                   margin="normal"
                   InputLabelProps={{ shrink: true }}
                 />
-              </Grid>
-              <Grid item xs={6}>
+              </Box>
+              <Box sx={{ flex: 1 }}>
                 <FormControl fullWidth margin="normal">
                   <InputLabel>Dias da Semana</InputLabel>
                   <Select label="Dias da Semana" multiple defaultValue={[1, 2, 3, 4, 5]}>
@@ -311,16 +310,18 @@ const AutomationsPage = () => {
                     <MenuItem value={6}>Sábado</MenuItem>
                   </Select>
                 </FormControl>
-              </Grid>
-            </Grid>
+              </Box>
+            </Box>
 
             <Typography variant="subtitle2" sx={{ mt: 3, mb: 2 }}>
               Ações
             </Typography>
 
-            <Button variant="outlined" startIcon={<Add />} fullWidth>
-              Adicionar Ação
-            </Button>
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+              <Button variant="outlined" startIcon={<Add />} fullWidth>
+                Adicionar Ação
+              </Button>
+            </Box>
           </Box>
         </DialogContent>
         <DialogActions>

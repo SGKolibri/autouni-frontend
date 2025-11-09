@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import {
   Box,
   Typography,
-  Grid,
   Card,
   CardContent,
   CardActionArea,
@@ -22,7 +21,7 @@ import {
 } from '@mui/icons-material';
 import { useQuery } from '@tanstack/react-query';
 import apiService from '@services/api';
-import { Building } from '@types/index';
+import { Building } from '@/types';
 
 const BuildingsPage = () => {
   const navigate = useNavigate();
@@ -51,13 +50,13 @@ const BuildingsPage = () => {
         <Typography variant="h4" fontWeight={600} gutterBottom>
           Prédios
         </Typography>
-        <Grid container spacing={3} sx={{ mt: 2 }}>
+        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 3, mt: 2 }}>
           {[1, 2, 3, 4].map((i) => (
-            <Grid item xs={12} sm={6} md={4} lg={3} key={i}>
+            <Box key={i} sx={{ flex: { xs: '1 1 100%', sm: '1 1 calc(50% - 12px)', md: '1 1 calc(33.333% - 16px)', lg: '1 1 calc(25% - 18px)' } }}>
               <Skeleton variant="rectangular" height={220} sx={{ borderRadius: 2 }} />
-            </Grid>
+            </Box>
           ))}
-        </Grid>
+        </Box>
       </Box>
     );
   }
@@ -83,7 +82,7 @@ const BuildingsPage = () => {
         </Button>
       </Box>
 
-      {/* Buildings Grid */}
+      {/* Buildings */}
       {buildings && buildings.length === 0 ? (
         <Card sx={{ p: 4, textAlign: 'center' }}>
           <Business sx={{ fontSize: 64, color: 'text.secondary', mb: 2 }} />
@@ -98,9 +97,9 @@ const BuildingsPage = () => {
           </Button>
         </Card>
       ) : (
-        <Grid container spacing={3}>
+        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 3 }}>
           {buildings?.map((building) => (
-            <Grid item xs={12} sm={6} md={4} lg={3} key={building.id}>
+            <Box key={building.id} sx={{ flex: { xs: '1 1 100%', sm: '1 1 calc(50% - 12px)', md: '1 1 calc(33.333% - 16px)', lg: '1 1 calc(25% - 18px)' } }}>
               <Card
                 sx={{
                   height: '100%',
@@ -184,9 +183,9 @@ const BuildingsPage = () => {
                   </CardContent>
                 </CardActionArea>
               </Card>
-            </Grid>
+            </Box>
           ))}
-        </Grid>
+        </Box>
       )}
     </Box>
   );

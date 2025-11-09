@@ -1,5 +1,5 @@
 import apiService from './api';
-import { User, LoginCredentials, AuthTokens } from '@types/index';
+import { User, LoginCredentials, AuthTokens } from '@/types';
 
 export interface LoginResponse {
   user: User;

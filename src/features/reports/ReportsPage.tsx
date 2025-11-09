@@ -3,7 +3,6 @@ import {
   Box,
   Typography,
   Paper,
-  Grid,
   Card,
   CardContent,
   CardActionArea,
@@ -35,7 +34,6 @@ import {
   ErrorOutline,
   Add,
   Download,
-  Visibility,
   Delete,
   CheckCircle,
   HourglassEmpty,
@@ -43,13 +41,14 @@ import {
 } from '@mui/icons-material';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import apiService from '@services/api';
-import { Report, ReportType, ReportFormat, ReportStatus } from '@types/index';
+import { Report, ReportType, ReportFormat, ReportStatus } from '@/types';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 
 const ReportsPage = () => {
   const queryClient = useQueryClient();
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [selectedType, setSelectedType] = useState<ReportType | null>(null);
   const [reportForm, setReportForm] = useState({
     type: ReportType.ENERGY_CONSUMPTION,
@@ -189,9 +188,9 @@ const ReportsPage = () => {
         </Box>
       </Box>
 
-      <Grid container spacing={3} sx={{ mb: 4 }}>
+      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 3, mb: 4 }}>
         {reportTypes.map((reportType) => (
-          <Grid item xs={12} sm={6} md={3} key={reportType.type}>
+          <Box key={reportType.type} sx={{ flex: { xs: '1 1 100%', sm: '1 1 calc(50% - 12px)', md: '1 1 calc(25% - 18px)' } }}>
             <Card
               sx={{
                 height: '100%',
@@ -232,9 +231,9 @@ const ReportsPage = () => {
                 </CardContent>
               </CardActionArea>
             </Card>
-          </Grid>
+          </Box>
         ))}
-      </Grid>
+      </Box>
 
       {/* Recent Reports */}
       <Paper sx={{ p: 4, borderRadius: 3 }}>
@@ -372,8 +371,8 @@ const ReportsPage = () => {
               </Select>
             </FormControl>
 
-            <Grid container spacing={2}>
-              <Grid item xs={6}>
+            <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, gap: 2 }}>
+              <Box sx={{ flex: 1 }}>
                 <TextField
                   label="Data Início"
                   type="date"
@@ -383,8 +382,8 @@ const ReportsPage = () => {
                   onChange={(e) => setReportForm({ ...reportForm, startDate: e.target.value })}
                   InputLabelProps={{ shrink: true }}
                 />
-              </Grid>
-              <Grid item xs={6}>
+              </Box>
+              <Box sx={{ flex: 1 }}>
                 <TextField
                   label="Data Fim"
                   type="date"
@@ -394,8 +393,8 @@ const ReportsPage = () => {
                   onChange={(e) => setReportForm({ ...reportForm, endDate: e.target.value })}
                   InputLabelProps={{ shrink: true }}
                 />
-              </Grid>
-            </Grid>
+              </Box>
+            </Box>
           </Box>
         </DialogContent>
         <DialogActions>

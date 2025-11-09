@@ -315,7 +315,7 @@ const DevicesPage = () => {
         </Paper>
       )}
 
-      {/* Data Grid */}
+      {/* DataGrid */}
       <Paper sx={{ height: 600, borderRadius: 3 }}>
         <DataGrid
           rows={filteredDevices}

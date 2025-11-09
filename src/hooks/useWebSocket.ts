@@ -2,7 +2,7 @@ import { useEffect, useRef, useCallback } from 'react';
 import { io, Socket } from 'socket.io-client';
 import { useDeviceStore } from '@store/deviceStore';
 import { useUIStore } from '@store/uiStore';
-import { DeviceUpdateMessage, WebSocketMessage, NotificationType } from '@types/index';
+import { DeviceUpdateMessage, WebSocketMessage, NotificationType } from '@/types';
 
 const WS_URL = import.meta.env.VITE_WS_URL || 'http://localhost:3001';
 
@@ -46,7 +46,7 @@ export const useWebSocket = () => {
 
     // Device update events
     socketRef.current.on('device:update', (message: DeviceUpdateMessage) => {
-      const { deviceId, status, online, intensity, temperature, energy } = message;
+      const { deviceId, status, online, intensity, temperature } = message;
       
       const updates: any = {};
       if (status !== undefined) updates.status = status;

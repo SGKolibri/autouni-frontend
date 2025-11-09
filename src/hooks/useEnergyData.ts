@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import apiService from '@services/api';
-import { EnergyStats, EnergyReading } from '@types/index';
+import { EnergyStats, EnergyReading } from '@/types';
 
 interface UseEnergyDataOptions {
   level?: 'general' | 'building' | 'floor' | 'room';

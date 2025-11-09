@@ -21,7 +21,7 @@ import {
   DeleteOutline,
 } from '@mui/icons-material';
 import { useUIStore } from '@store/uiStore';
-import { NotificationType } from '@types/index';
+import { NotificationType } from '@/types';
 import { formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 

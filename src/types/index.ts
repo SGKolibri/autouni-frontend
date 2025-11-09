@@ -278,3 +278,26 @@ export interface DialogState {
   onConfirm?: () => void;
   onCancel?: () => void;
 }
+
+export interface EnergyComparisonItem {
+  id: string;
+  name: string;
+  energy: number;
+  trend: number;
+}
+
+export interface DeviceStats {
+  activeDevices: number;
+  totalDevices: number;
+}
+
+export interface EnergyData {
+  totalKwh: number;
+  trend?: number;
+  history?: Array<{ timestamp: string; value: number }>;
+}
+
+export interface DeviceControlResponse {
+  status: DeviceStatus;
+  message?: string;
+}
