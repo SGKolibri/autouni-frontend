@@ -52,9 +52,9 @@ const LoginPage = () => {
         password: formData.password!,
       };
       const response = await apiService.login(credentials);
-      const { user, access_token, refresh_token } = response;
+      const { user, accessToken, refreshToken } = response;
 
-      login(user, { access_token, refresh_token });
+      login(user, { accessToken, refreshToken });
       navigate('/');
     } catch (err: any) {
       setError(err.response?.data?.message || 'Erro ao fazer login. Verifique suas credenciais.');

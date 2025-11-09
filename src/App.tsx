@@ -45,7 +45,7 @@ function App() {
           try {
             const user = JSON.parse(storedUser);
             setUser(user);
-            setTokens({ access_token: accessToken, refresh_token: refreshToken });
+            setTokens({ accessToken, refreshToken });
             setLoading(false);
             return;
           } catch (e) {
@@ -57,7 +57,7 @@ function App() {
         try {
           const response = await apiService.get<User>("/auth/me");
           setUser(response.data);
-          setTokens({ access_token: accessToken, refresh_token: refreshToken });
+          setTokens({ accessToken, refreshToken });
           localStorage.setItem('user', JSON.stringify(response.data));
         } catch (error) {
           // Token inválido, limpa storage

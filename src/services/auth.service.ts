@@ -14,7 +14,7 @@ class AuthService {
     return await apiService.register(data);
   }
 
-  async refreshToken(refreshToken: string): Promise<{ access_token: string; refresh_token: string }> {
+  async refreshToken(refreshToken: string): Promise<{ accessToken: string; refreshToken: string }> {
     return await apiService.refreshToken(refreshToken);
   }
 
