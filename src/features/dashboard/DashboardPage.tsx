@@ -11,7 +11,7 @@ import { useWebSocket } from "@hooks/useWebSocket";
 import apiService from "@services/api";
 import EnergyChart from "@components/charts/EnergyChart";
 import BuildingsList from "./components/BuildingList";
-import { Building, DeviceStats, EnergyData } from "@/types";
+import { Building, DeviceStats, EnergyStats, Notification } from "@/types";
 
 
 
@@ -22,32 +22,21 @@ const DashboardPage = () => {
   // Fetch device stats
   const { data: deviceStats, isLoading: statsLoading } = useQuery({
     queryKey: ["devices", "stats"],
-    queryFn: async () => {
-      const response = await apiService.get<DeviceStats>("/devices/stats");
-      return response.data;
-    },
+    queryFn: () => apiService.getDeviceStats(),
     refetchInterval: 30000, // Refetch a cada 30s
   });
 
   // Fetch notifications (for alerts count)
   const { data: notifications } = useQuery({
     queryKey: ["notifications", "unread"],
-    queryFn: async () => {
-      const response = await apiService.get<Notification[]>(
-        "/notifications/me/unread"
-      );
-      return response.data;
-    },
+    queryFn: () => apiService.getUnreadNotifications(),
     refetchInterval: 30000,
   });
 
   // Fetch buildings for energy aggregation
   const { data: buildings } = useQuery({
     queryKey: ["buildings"],
-    queryFn: async () => {
-      const response = await apiService.get<Building[]>("/buildings");
-      return response.data;
-    },
+    queryFn: () => apiService.getBuildings(),
   });
 
   // Fetch energy data from first building (or aggregate)
@@ -56,10 +45,7 @@ const DashboardPage = () => {
     queryFn: async () => {
       if (!buildings || buildings.length === 0) return null;
       // Usa estatísticas de energia do primeiro prédio como exemplo
-      const response = await apiService.get<EnergyData>(
-        `/energy/buildings/${buildings[0].id}/stats`
-      );
-      return response.data;
+      return await apiService.getBuildingEnergyStats(buildings[0].id);
     },
     enabled: !!buildings && buildings.length > 0,
     refetchInterval: 60000, // Refetch a cada 1min

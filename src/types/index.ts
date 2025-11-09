@@ -3,6 +3,7 @@ export interface User {
   id: string;
   email: string;
   name: string;
+  cpf?: string;
   role: UserRole;
   avatar?: string;
   createdAt: string;
@@ -10,20 +11,34 @@ export interface User {
 }
 
 export enum UserRole {
-  ADMIN = 'admin',
-  COORDINATOR = 'coordinator',
-  TECHNICIAN = 'technician',
-  VIEWER = 'viewer',
+  ADMIN = 'ADMIN',
+  COORDINATOR = 'COORDINATOR',
+  TECHNICIAN = 'TECHNICIAN',
+  VIEWER = 'VIEWER',
 }
 
 export interface AuthTokens {
-  accessToken: string;
-  refreshToken: string;
+  access_token: string;
+  refresh_token: string;
+}
+
+export interface LoginResponse {
+  access_token: string;
+  refresh_token: string;
+  user: User;
 }
 
 export interface LoginCredentials {
   email: string;
   password: string;
+}
+
+export interface RegisterCredentials {
+  email: string;
+  password: string;
+  name: string;
+  cpf: string;
+  role?: UserRole;
 }
 
 // Building Structure Types
@@ -32,11 +47,19 @@ export interface Building {
   name: string;
   description?: string;
   location: string;
-  floors: Floor[];
+  floors?: Floor[];
   totalEnergy?: number;
   activeDevices?: number;
   createdAt: string;
   updatedAt: string;
+}
+
+export interface BuildingStats {
+  totalFloors: number;
+  totalRooms: number;
+  totalDevices: number;
+  totalEnergy: number;
+  activeDevices: number;
 }
 
 export interface Floor {
@@ -44,7 +67,7 @@ export interface Floor {
   buildingId: string;
   number: number;
   name: string;
-  rooms: Room[];
+  rooms?: Room[];
   totalEnergy?: number;
   activeDevices?: number;
   createdAt: string;
@@ -58,7 +81,7 @@ export interface Room {
   name: string;
   type: RoomType;
   capacity?: number;
-  devices: Device[];
+  devices?: Device[];
   totalEnergy?: number;
   occupied?: boolean;
   createdAt: string;
@@ -66,12 +89,12 @@ export interface Room {
 }
 
 export enum RoomType {
-  CLASSROOM = 'classroom',
-  LAB = 'lab',
-  OFFICE = 'office',
-  AUDITORIUM = 'auditorium',
-  LIBRARY = 'library',
-  OTHER = 'other',
+  CLASSROOM = 'CLASSROOM',
+  LAB = 'LAB',
+  OFFICE = 'OFFICE',
+  AUDITORIUM = 'AUDITORIUM',
+  LIBRARY = 'LIBRARY',
+  OTHER = 'OTHER',
 }
 
 // Device Types
@@ -117,15 +140,18 @@ export interface EnergyReading {
 
 export interface EnergyStats {
   totalEnergy: number; // kWh
-  totalCost: number; // BRL
-  peakDemand: number; // Watts
-  averagePower: number; // Watts
-  period: {
+  totalCost?: number; // BRL
+  peakDemand?: number; // Watts
+  averagePower?: number; // Watts
+  period?: {
     start: string;
     end: string;
   };
   byDeviceType?: Record<DeviceType, number>;
   byRoom?: Record<string, number>;
+  totalKwh?: number; // Alias for totalEnergy
+  trend?: number;
+  history?: Array<{ timestamp: string; value: number }>;
 }
 
 // Automation Types
@@ -144,6 +170,27 @@ export interface Automation {
   lastRunAt?: string;
 }
 
+export interface AutomationStats {
+  total: number;
+  enabled: number;
+  disabled: number;
+  byType: {
+    SCHEDULE: number;
+    CONDITION: number;
+    MANUAL: number;
+  };
+  recentExecutions: number;
+}
+
+export interface AutomationHistory {
+  id: string;
+  automationId: string;
+  status: 'SUCCESS' | 'FAILED' | 'PENDING';
+  executedAt: string;
+  result?: string;
+  error?: string;
+}
+
 export interface AutomationTrigger {
   type: TriggerType;
   schedule?: ScheduleConfig;
@@ -151,9 +198,9 @@ export interface AutomationTrigger {
 }
 
 export enum TriggerType {
-  SCHEDULE = 'schedule',
-  CONDITION = 'condition',
-  MANUAL = 'manual',
+  SCHEDULE = 'SCHEDULE',
+  CONDITION = 'CONDITION',
+  MANUAL = 'MANUAL',
 }
 
 export interface ScheduleConfig {
@@ -177,19 +224,22 @@ export interface AutomationAction {
 // Notification Types
 export interface Notification {
   id: string;
+  userId: string;
   type: NotificationType;
   title: string;
   message: string;
   read: boolean;
   link?: string;
+  metadata?: any;
   createdAt: string;
+  updatedAt: string;
 }
 
 export enum NotificationType {
-  INFO = 'info',
-  WARNING = 'warning',
-  ERROR = 'error',
-  SUCCESS = 'success',
+  INFO = 'INFO',
+  WARNING = 'WARNING',
+  ERROR = 'ERROR',
+  SUCCESS = 'SUCCESS',
 }
 
 // Report Types
@@ -203,26 +253,27 @@ export interface Report {
   fileUrl?: string;
   createdBy: string;
   createdAt: string;
+  updatedAt: string;
 }
 
 export enum ReportType {
-  ENERGY_CONSUMPTION = 'energy_consumption',
-  DEVICE_STATUS = 'device_status',
-  ROOM_USAGE = 'room_usage',
-  INCIDENTS = 'incidents',
+  ENERGY_CONSUMPTION = 'ENERGY_CONSUMPTION',
+  DEVICE_STATUS = 'DEVICE_STATUS',
+  ROOM_USAGE = 'ROOM_USAGE',
+  INCIDENTS = 'INCIDENTS',
 }
 
 export enum ReportFormat {
-  PDF = 'pdf',
-  CSV = 'csv',
-  XLSX = 'xlsx',
+  PDF = 'PDF',
+  CSV = 'CSV',
+  XLSX = 'XLSX',
 }
 
 export enum ReportStatus {
-  PENDING = 'pending',
-  PROCESSING = 'processing',
-  COMPLETED = 'completed',
-  FAILED = 'failed',
+  PENDING = 'PENDING',
+  PROCESSING = 'PROCESSING',
+  COMPLETED = 'COMPLETED',
+  FAILED = 'FAILED',
 }
 
 export interface ReportFilters {
@@ -289,15 +340,29 @@ export interface EnergyComparisonItem {
 export interface DeviceStats {
   activeDevices: number;
   totalDevices: number;
-}
-
-export interface EnergyData {
-  totalKwh: number;
-  trend?: number;
-  history?: Array<{ timestamp: string; value: number }>;
+  byType?: Record<DeviceType, number>;
+  byStatus?: Record<DeviceStatus, number>;
 }
 
 export interface DeviceControlResponse {
   status: DeviceStatus;
   message?: string;
+}
+
+export interface BulkDeviceControlResponse {
+  success: boolean;
+  affectedDevices: number;
+  failedDevices?: string[];
+}
+
+// Health & API Info
+export interface HealthResponse {
+  status: string;
+  timestamp: string;
+  uptime: number;
+  environment: string;
+}
+
+export interface ApiWelcomeResponse {
+  message: string;
 }
