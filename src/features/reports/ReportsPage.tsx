@@ -158,12 +158,13 @@ const ReportsPage = () => {
   return (
     <Box>
       {/* Header */}
-      <Box sx={{ mb: 4 }}>
+      <Box sx={{ mb: { xs: 3, md: 4 } }}>
         <Typography 
           variant="h4" 
           fontWeight={700} 
           gutterBottom
           sx={{ 
+            fontSize: { xs: '1.75rem', sm: '2.125rem' },
             background: 'linear-gradient(135deg, #1F2937 0%, #374151 100%)',
             WebkitBackgroundClip: 'text',
             WebkitTextFillColor: 'transparent',
@@ -188,9 +189,18 @@ const ReportsPage = () => {
         </Box>
       </Box>
 
-      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 3, mb: 4 }}>
+      <Box sx={{ 
+        display: 'grid',
+        gridTemplateColumns: {
+          xs: '1fr',
+          sm: 'repeat(2, 1fr)',
+          md: 'repeat(4, 1fr)',
+        },
+        gap: { xs: 2, md: 3 },
+        mb: 4 
+      }}>
         {reportTypes.map((reportType) => (
-          <Box key={reportType.type} sx={{ flex: { xs: '1 1 100%', sm: '1 1 calc(50% - 12px)', md: '1 1 calc(25% - 18px)' } }}>
+          <Box key={reportType.type}>
             <Card
               sx={{
                 height: '100%',
@@ -236,8 +246,15 @@ const ReportsPage = () => {
       </Box>
 
       {/* Recent Reports */}
-      <Paper sx={{ p: 4, borderRadius: 3 }}>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 3 }}>
+      <Paper sx={{ p: { xs: 2, sm: 3, md: 4 }, borderRadius: 3, overflow: 'hidden' }}>
+        <Box sx={{ 
+          display: 'flex',
+          flexDirection: { xs: 'column', sm: 'row' },
+          justifyContent: 'space-between', 
+          alignItems: { xs: 'flex-start', sm: 'flex-start' },
+          gap: 2,
+          mb: 3 
+        }}>
           <Box>
             <Typography variant="h5" fontWeight={700} gutterBottom>
               Relatórios Recentes
@@ -256,8 +273,8 @@ const ReportsPage = () => {
           </Button>
         </Box>
 
-        <TableContainer>
-          <Table>
+        <TableContainer sx={{ overflowX: 'auto' }}>
+          <Table sx={{ minWidth: { xs: 'auto', sm: 650 } }}>
             <TableHead>
               <TableRow>
                 <TableCell>Título</TableCell>

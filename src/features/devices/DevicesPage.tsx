@@ -215,14 +215,14 @@ const DevicesPage = () => {
       )}
 
       {/* Filters & Search */}
-      <Paper sx={{ p: 3, mb: 3, borderRadius: 3 }}>
+      <Paper sx={{ p: { xs: 2, sm: 3 }, mb: 3, borderRadius: 3 }}>
         <Box sx={{ display: 'flex', gap: 2, alignItems: 'center', flexWrap: 'wrap' }}>
           <TextField
             placeholder="Buscar dispositivos..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             size="small"
-            sx={{ flexGrow: 1, minWidth: 250 }}
+            sx={{ flexGrow: 1, minWidth: { xs: '100%', sm: 250 } }}
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
@@ -236,6 +236,7 @@ const DevicesPage = () => {
             variant="outlined"
             startIcon={<FilterList />}
             onClick={(e) => setFilterAnchor(e.currentTarget)}
+            sx={{ width: { xs: '100%', sm: 'auto' } }}
           >
             Filtros
           </Button>
@@ -284,8 +285,14 @@ const DevicesPage = () => {
 
       {/* Bulk Actions */}
       {rowSelectionModel.ids.size > 0 && (
-        <Paper sx={{ p: 3, mb: 3, backgroundColor: 'primary.main', color: 'white', borderRadius: 3 }}>
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <Paper sx={{ p: { xs: 2, sm: 3 }, mb: 3, backgroundColor: 'primary.main', color: 'white', borderRadius: 3 }}>
+          <Box sx={{ 
+            display: 'flex', 
+            flexDirection: { xs: 'column', sm: 'row' },
+            justifyContent: 'space-between', 
+            alignItems: { xs: 'stretch', sm: 'center' },
+            gap: 2
+          }}>
             <Typography variant="body1" fontWeight={600}>
               {rowSelectionModel.ids.size} dispositivo(s) selecionado(s)
             </Typography>
@@ -316,7 +323,7 @@ const DevicesPage = () => {
       )}
 
       {/* DataGrid */}
-      <Paper sx={{ height: 600, borderRadius: 3 }}>
+      <Paper sx={{ height: { xs: 400, sm: 500, md: 600 }, borderRadius: 3 }}>
         <DataGrid
           rows={filteredDevices}
           columns={columns}

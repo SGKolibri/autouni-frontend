@@ -121,7 +121,7 @@ const EnergyPage = () => {
           variant="outlined"
           startIcon={<FileDownload />}
           onClick={handleExport}
-          fullWidth={{ xs: true, sm: false }}
+          sx={{ width: { xs: '100%', sm: 'auto' } }}
         >
           Exportar Relatório
         </Button>
