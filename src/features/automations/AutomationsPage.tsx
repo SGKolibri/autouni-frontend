@@ -119,7 +119,14 @@ const AutomationsPage = () => {
   return (
     <Box>
       {/* Header */}
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+      <Box sx={{ 
+        display: 'flex',
+        flexDirection: { xs: 'column', sm: 'row' },
+        justifyContent: 'space-between', 
+        alignItems: { xs: 'flex-start', sm: 'center' },
+        gap: 2,
+        mb: 3 
+      }}>
         <Box>
           <Typography variant="h4" fontWeight={600} gutterBottom>
             Automações
@@ -132,6 +139,7 @@ const AutomationsPage = () => {
           variant="contained"
           startIcon={<Add />}
           onClick={() => setCreateDialogOpen(true)}
+          sx={{ width: { xs: '100%', sm: 'auto' } }}
         >
           Nova Automação
         </Button>
@@ -158,10 +166,10 @@ const AutomationsPage = () => {
           </Button>
         </Paper>
       ) : (
-        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: { xs: 2, md: 3 } }}>
           {automations?.map((automation) => (
-            <Card key={automation.id} sx={{ width: '100%' }}>
-                <CardContent>
+            <Card key={automation.id}>
+                <CardContent sx={{ p: { xs: 2, sm: 3 } }}>
                   {/* Header */}
                   <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
                     <Box sx={{ flexGrow: 1 }}>
@@ -216,12 +224,18 @@ const AutomationsPage = () => {
                   )}
                 </CardContent>
 
-                <CardActions sx={{ px: 2, pb: 2 }}>
+                <CardActions sx={{ 
+                  px: { xs: 2, sm: 2 }, 
+                  pb: 2,
+                  flexWrap: 'wrap',
+                  gap: { xs: 1, sm: 0 }
+                }}>
                   <Button
                     size="small"
                     startIcon={<PlayArrow />}
                     onClick={() => handleRun(automation.id)}
                     disabled={runAutomationMutation.isPending}
+                    sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}
                   >
                     Executar
                   </Button>
@@ -229,6 +243,7 @@ const AutomationsPage = () => {
                     size="small"
                     startIcon={<Edit />}
                     onClick={() => setSelectedAutomation(automation)}
+                    sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}
                   >
                     Editar
                   </Button>
@@ -287,7 +302,7 @@ const AutomationsPage = () => {
               </Select>
             </FormControl>
 
-            <Box sx={{ display: 'flex', flexDirection: 'row', gap: 2 }}>
+            <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, gap: 2 }}>
               <Box sx={{ flex: 1 }}>
                 <TextField
                   label="Horário"

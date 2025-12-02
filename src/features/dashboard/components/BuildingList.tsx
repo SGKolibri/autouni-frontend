@@ -50,14 +50,14 @@ const BuildingsList = () => {
   }
 
   return (
-    <TableContainer>
-      <Table>
+    <TableContainer sx={{ overflowX: 'auto' }}>
+      <Table sx={{ minWidth: { xs: 'auto', sm: 650 } }}>
         <TableHead>
           <TableRow>
             <TableCell>Prédio</TableCell>
-            <TableCell align="center">Andares</TableCell>
-            <TableCell align="center">Dispositivos Ativos</TableCell>
-            <TableCell align="right">Consumo (kWh)</TableCell>
+            <TableCell align="center" sx={{ display: { xs: 'none', sm: 'table-cell' } }}>Andares</TableCell>
+            <TableCell align="center">Dispositivos</TableCell>
+            <TableCell align="right" sx={{ display: { xs: 'none', md: 'table-cell' } }}>Consumo (kWh)</TableCell>
             <TableCell align="right"></TableCell>
           </TableRow>
         </TableHead>
@@ -79,7 +79,7 @@ const BuildingsList = () => {
                   </Typography>
                 </Box>
               </TableCell>
-              <TableCell align="center">
+              <TableCell align="center" sx={{ display: { xs: 'none', sm: 'table-cell' } }}>
                 <Chip
                   label={building.floors?.length || 0}
                   size="small"
@@ -97,7 +97,7 @@ const BuildingsList = () => {
                   color="success"
                 />
               </TableCell>
-              <TableCell align="right">
+              <TableCell align="right" sx={{ display: { xs: 'none', md: 'table-cell' } }}>
                 <Typography variant="body2" fontWeight={600}>
                   {building.totalEnergy?.toFixed(2) || '0.00'}
                 </Typography>

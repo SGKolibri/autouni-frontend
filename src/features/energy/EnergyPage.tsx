@@ -101,7 +101,14 @@ const EnergyPage = () => {
   return (
     <Box>
       {/* Header */}
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+      <Box sx={{ 
+        display: 'flex', 
+        flexDirection: { xs: 'column', sm: 'row' },
+        justifyContent: 'space-between', 
+        alignItems: { xs: 'flex-start', sm: 'center' }, 
+        gap: 2,
+        mb: 3 
+      }}>
         <Box>
           <Typography variant="h4" fontWeight={600} gutterBottom>
             Monitoramento Energético
@@ -114,6 +121,7 @@ const EnergyPage = () => {
           variant="outlined"
           startIcon={<FileDownload />}
           onClick={handleExport}
+          sx={{ width: { xs: '100%', sm: 'auto' } }}
         >
           Exportar Relatório
         </Button>
@@ -177,28 +185,34 @@ const EnergyPage = () => {
       {isLoadingStats ? (
         <Box 
           sx={{ 
-            display: 'flex', 
-            flexDirection: { xs: 'column', md: 'row' },
-            gap: 3,
+            display: 'grid',
+            gridTemplateColumns: {
+              xs: '1fr',
+              sm: 'repeat(2, 1fr)',
+              md: 'repeat(4, 1fr)',
+            },
+            gap: { xs: 2, md: 3 },
             mb: 3,
           }}
         >
           {[1, 2, 3, 4].map((i) => (
-            <Box key={i} sx={{ flex: 1, minWidth: 0 }}>
-              <Skeleton variant="rectangular" height={120} sx={{ borderRadius: 2 }} />
-            </Box>
+            <Skeleton key={i} variant="rectangular" height={120} sx={{ borderRadius: 2 }} />
           ))}
         </Box>
       ) : (
       <Box 
         sx={{ 
-          display: 'flex', 
-          flexDirection: { xs: 'column', md: 'row' },
-          gap: 3,
+          display: 'grid',
+          gridTemplateColumns: {
+            xs: '1fr',
+            sm: 'repeat(2, 1fr)',
+            md: 'repeat(4, 1fr)',
+          },
+          gap: { xs: 2, md: 3 },
           mb: 3,
         }}
       >
-        <Card sx={{ flex: 1, minWidth: { xs: '100%', sm: 275 } }}>
+        <Card>
           <CardContent>
             <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
               <BoltOutlined sx={{ fontSize: 40, color: 'warning.main', mr: 2 }} />
@@ -214,7 +228,7 @@ const EnergyPage = () => {
           </CardContent>
         </Card>
 
-        <Card sx={{ flex: 1, minWidth: { xs: '100%', sm: 275 } }}>
+        <Card>
           <CardContent>
             <Typography variant="caption" color="text.secondary" gutterBottom>
               Custo Estimado
@@ -228,7 +242,7 @@ const EnergyPage = () => {
           </CardContent>
         </Card>
 
-        <Card sx={{ flex: 1, minWidth: { xs: '100%', sm: 275 } }}>
+        <Card>
           <CardContent>
             <Typography variant="caption" color="text.secondary" gutterBottom>
               Pico de Demanda
@@ -242,7 +256,7 @@ const EnergyPage = () => {
           </CardContent>
         </Card>
 
-        <Card sx={{ flex: 1, minWidth: { xs: '100%', sm: 275 } }}>
+        <Card>
           <CardContent>
             <Typography variant="caption" color="text.secondary" gutterBottom>
               Potência Média
@@ -262,9 +276,17 @@ const EnergyPage = () => {
       )}
 
       {/* Charts Row */}
-      <Box sx={{ display: 'flex', flexDirection: { xs: 'column', lg: 'row' }, gap: 3, mb: 3 }}>
+      <Box sx={{ 
+        display: 'grid',
+        gridTemplateColumns: {
+          xs: '1fr',
+          lg: '1fr 400px',
+        },
+        gap: { xs: 2, md: 3 }, 
+        mb: 3 
+      }}>
         {/* Energy Timeline */}
-        <Paper sx={{ flex: 1, minWidth: 0, p: 3 }}>
+        <Paper sx={{ p: { xs: 2, sm: 3 }, minWidth: 0 }}>
           <Typography variant="h6" fontWeight={600} gutterBottom>
             Histórico de Consumo
           </Typography>
@@ -276,7 +298,7 @@ const EnergyPage = () => {
         </Paper>
 
         {/* Device Type Distribution */}
-        <Paper sx={{ flex: 1, minWidth: 0, p: 3, maxWidth: { lg: '400px' } }}>
+        <Paper sx={{ p: { xs: 2, sm: 3 }, minWidth: 0 }}>
           <Typography variant="h6" fontWeight={600} gutterBottom>
             Consumo por Tipo
           </Typography>
@@ -313,12 +335,12 @@ const EnergyPage = () => {
       </Box>
 
       {/* Comparison Table */}
-      <Paper sx={{ p: 3 }}>
+      <Paper sx={{ p: { xs: 2, sm: 3 }, overflow: 'hidden' }}>
         <Typography variant="h6" fontWeight={600} gutterBottom>
           Ranking de Consumo
         </Typography>
-        <TableContainer>
-          <Table>
+        <TableContainer sx={{ overflowX: 'auto' }}>
+          <Table sx={{ minWidth: { xs: 'auto', sm: 650 } }}>
             <TableHead>
               <TableRow>
                 <TableCell>Posição</TableCell>

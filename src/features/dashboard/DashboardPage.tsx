@@ -94,83 +94,81 @@ const DashboardPage = () => {
       {/* KPI Cards - Full Width Flex */}
       <Box
         sx={{
-          display: "flex",
-          flexDirection: { xs: "column", md: "row" },
-          gap: 3,
+          display: "grid",
+          gridTemplateColumns: {
+            xs: "1fr",
+            sm: "repeat(2, 1fr)",
+            lg: "repeat(4, 1fr)",
+          },
+          gap: { xs: 2, md: 3 },
           mb: 4,
         }}
       >
-        <Box sx={{ flex: 1, minWidth: 0 }}>
-          <KPICard
-            title="Consumo Total"
-            value={
-              stats?.totalEnergy
-                ? `${stats.totalEnergy.toFixed(2)} kWh`
-                : "0 kWh"
-            }
-            icon={<BoltOutlined />}
-            color="primary"
-            trend={stats?.energyTrend}
-            loading={energyLoading}
-          />
-        </Box>
+        <KPICard
+          title="Consumo Total"
+          value={
+            stats?.totalEnergy
+              ? `${stats.totalEnergy.toFixed(2)} kWh`
+              : "0 kWh"
+          }
+          icon={<BoltOutlined />}
+          color="primary"
+          trend={stats?.energyTrend}
+          loading={energyLoading}
+        />
 
-        <Box sx={{ flex: 1, minWidth: 0 }}>
-          <KPICard
-            title="Dispositivos Ativos"
-            value={stats?.activeDevices || 0}
-            subtitle={`de ${stats?.totalDevices || 0} dispositivos`}
-            icon={<DevicesOutlined />}
-            color="success"
-            loading={statsLoading}
-          />
-        </Box>
+        <KPICard
+          title="Dispositivos Ativos"
+          value={stats?.activeDevices || 0}
+          subtitle={`de ${stats?.totalDevices || 0} dispositivos`}
+          icon={<DevicesOutlined />}
+          color="success"
+          loading={statsLoading}
+        />
 
-        <Box sx={{ flex: 1, minWidth: 0 }}>
-          <KPICard
-            title="Custo Estimado"
-            value={
-              stats?.estimatedCost
-                ? `R$ ${stats.estimatedCost.toFixed(2)}`
-                : "R$ 0,00"
-            }
-            subtitle="este mês"
-            icon={<TrendingUpOutlined />}
-            color="info"
-            trend={stats?.costTrend}
-            loading={energyLoading}
-          />
-        </Box>
+        <KPICard
+          title="Custo Estimado"
+          value={
+            stats?.estimatedCost
+              ? `R$ ${stats.estimatedCost.toFixed(2)}`
+              : "R$ 0,00"
+          }
+          subtitle="este mês"
+          icon={<TrendingUpOutlined />}
+          color="info"
+          trend={stats?.costTrend}
+          loading={energyLoading}
+        />
 
-        <Box sx={{ flex: 1, minWidth: 0 }}>
-          <KPICard
-            title="Alertas Ativos"
-            value={stats?.activeAlerts || 0}
-            icon={<WarningAmberOutlined />}
-            color="warning"
-            loading={statsLoading}
-          />
-        </Box>
+        <KPICard
+          title="Alertas Ativos"
+          value={stats?.activeAlerts || 0}
+          icon={<WarningAmberOutlined />}
+          color="warning"
+          loading={statsLoading}
+        />
       </Box>
 
       {/* Charts & Info Row */}
       <Box
         sx={{
-          display: "flex",
-          flexDirection: { xs: "column", lg: "row" },
-          gap: 3,
+          display: "grid",
+          gridTemplateColumns: {
+            xs: "1fr",
+            lg: "1fr 400px",
+          },
+          gap: { xs: 2, md: 3 },
           mb: 4,
         }}
       >
         {/* Energy Chart - Takes ~70% width on desktop */}
         <Paper
           sx={{
-            flex: 2,
-            minWidth: 0,
-            p: 4,
+            p: { xs: 2, sm: 3, md: 4 },
             background: "#FFFFFF",
             borderRadius: 3,
             border: "1px solid #E5E7EB",
+            minWidth: 0,
           }}
         >
           <Box sx={{ mb: 3 }}>
@@ -195,13 +193,11 @@ const DashboardPage = () => {
         {/* Device Status - Takes ~30% width on desktop */}
         <Paper
           sx={{
-            flex: 1,
-            minWidth: 0,
-            maxWidth: { lg: "400px" },
-            p: 4,
+            p: { xs: 2, sm: 3, md: 4 },
             background: "#FFFFFF",
             borderRadius: 3,
             border: "1px solid #E5E7EB",
+            minWidth: 0,
           }}
         >
           <Box sx={{ mb: 3 }}>
@@ -313,10 +309,11 @@ const DashboardPage = () => {
       {/* Buildings List */}
       <Paper
         sx={{
-          p: 3,
+          p: { xs: 2, sm: 3 },
           background: "#FFFFFF",
           borderRadius: 3,
           border: "1px solid #E5E7EB",
+          overflow: "hidden",
         }}
       >
         <Box sx={{ mb: 3 }}>
