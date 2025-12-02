@@ -64,6 +64,9 @@ const MainLayout = () => {
     navigate('/settings');
   };
 
+  const sidebarOpen = useUIStore((state) => state.sidebarOpen);
+  const isMobile = theme.breakpoints.down('md');
+
   return (
     <Box sx={{ display: 'flex', minHeight: '100vh', backgroundColor: '#F9FAFB' }}>
       {/* AppBar Moderna */}
@@ -237,10 +240,6 @@ const MainLayout = () => {
           mt: 8,
           backgroundColor: '#F9FAFB',
           minHeight: 'calc(100vh - 64px)',
-          transition: theme.transitions.create(['margin', 'width'], {
-            easing: theme.transitions.easing.sharp,
-            duration: theme.transitions.duration.leavingScreen,
-          }),
         }}
       >
         <Outlet />

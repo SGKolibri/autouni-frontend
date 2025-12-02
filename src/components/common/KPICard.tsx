@@ -53,7 +53,7 @@ const KPICard: React.FC<KPICardProps> = ({
   return (
     <Card
       sx={{
-        minHeight: 160,
+        minHeight: { xs: 140, sm: 160 },
         width: '100%',
         height: '100%',
         display: 'flex',

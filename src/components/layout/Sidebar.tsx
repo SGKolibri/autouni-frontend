@@ -217,47 +217,34 @@ const Sidebar = ({ drawerWidth }: SidebarProps) => {
   );
 
   return (
-    <>
-      {/* Mobile Drawer */}
-      {isMobile ? (
-        <Drawer
-          variant="temporary"
-          open={sidebarOpen}
-          onClose={() => setSidebarOpen(false)}
-          ModalProps={{
-            keepMounted: true,
-          }}
-          sx={{
-            '& .MuiDrawer-paper': {
-              width: drawerWidth,
-              boxSizing: 'border-box',
-              backgroundColor: '#FFFFFF',
-              borderRight: `1px solid ${theme.palette.divider}`,
-            },
-          }}
-        >
-          {drawer}
-        </Drawer>
-      ) : (
-        /* Desktop Drawer */
-        <Drawer
-          variant="persistent"
-          open={sidebarOpen}
-          sx={{
-            width: drawerWidth,
-            flexShrink: 0,
-            '& .MuiDrawer-paper': {
-              width: drawerWidth,
-              boxSizing: 'border-box',
-              backgroundColor: '#FFFFFF',
-              borderRight: `1px solid ${theme.palette.divider}`,
-            },
-          }}
-        >
-          {drawer}
-        </Drawer>
-      )}
-    </>
+    <Drawer
+      variant={isMobile ? "temporary" : "permanent"}
+      open={isMobile ? sidebarOpen : true}
+      onClose={() => setSidebarOpen(false)}
+      ModalProps={{
+        keepMounted: true,
+      }}
+      sx={{
+        width: sidebarOpen ? drawerWidth : 0,
+        flexShrink: 0,
+        '& .MuiDrawer-paper': {
+          width: drawerWidth,
+          boxSizing: 'border-box',
+          backgroundColor: '#FFFFFF',
+          borderRight: `1px solid ${theme.palette.divider}`,
+          transform: {
+            xs: 'none',
+            md: sidebarOpen ? 'translateX(0)' : `translateX(-${drawerWidth}px)`,
+          },
+          transition: theme.transitions.create('transform', {
+            easing: theme.transitions.easing.sharp,
+            duration: theme.transitions.duration.leavingScreen,
+          }),
+        },
+      }}
+    >
+      {drawer}
+    </Drawer>
   );
 };
 
