@@ -609,7 +609,7 @@ Este projeto é parte de um trabalho acadêmico.
 
 ## 👥 Autores
 
-**Equipe AutoUni** - 2024
+**Equipe AutoUni** - 2025
 
 - [Samuel Custódio](https://github.com/SGKolibri)
 
