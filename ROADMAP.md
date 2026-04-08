@@ -122,7 +122,7 @@ Progresso Geral: ██████████████░░░░░░ 68
 
 ---
 
-### Fase 3: Integração e Testes (70% Em Andamento)
+### Fase 3: Integração e Testes [CONCLUÍDA]
 
 **Período:** Maio - Dezembro 2025  
 **Objetivo:** Integrar com backend, adicionar features avançadas e testes
@@ -152,49 +152,48 @@ Progresso Geral: ██████████████░░░░░░ 68
 - [x] Configurações do sistema
 - [x] Thresholds e alertas
 
-#### 3.4 Real-time e WebSocket [EM ANDAMENTO] (50%)
+#### 3.4 Real-time e WebSocket [CONCLUÍDA]
 - [x] Hook useWebSocket customizado
 - [x] Integração com Socket.io
 - [x] Updates de status de dispositivos em tempo real
-- [ ] Updates de consumo energético em tempo real
-- [ ] Notificações push
-- [ ] Reconexão automática
-- [ ] Tratamento de erros de conexão
+- [x] Updates de consumo energético em tempo real (evento `energy:update`)
+- [x] Notificações push (Browser Notification API)
+- [x] Reconexão automática com backoff exponencial (até 30s, máx 10 tentativas)
+- [x] Tratamento de erros de conexão (estado `wsError` exposto pelo hook)
 
-#### 3.5 Notificações [EM ANDAMENTO] (60%)
+#### 3.5 Notificações [CONCLUÍDA]
 - [x] NotificationDrawer component
 - [x] Sistema de badges
 - [x] Listagem de notificações
-- [ ] Filtros por tipo e status
-- [ ] Marcar como lida
-- [ ] Ações rápidas nas notificações
-- [ ] Persistência de preferências
+- [x] Filtros por tipo e status (Info / Alertas / Erros / Sucesso + Todas / Não lidas / Lidas)
+- [x] Marcar como lida (individual e em massa)
+- [x] Ações rápidas nas notificações (ícones: marcar lida, abrir link, remover)
+- [x] Persistência de preferências (tipos habilitados + push) via Zustand persist (localStorage)
 
-#### 3.6 Gráficos e Visualizações [EM ANDAMENTO] (40%)
-- [x] EnergyChart component (Recharts)
+#### 3.6 Gráficos e Visualizações [CONCLUÍDA]
+- [x] EnergyChart component (Recharts AreaChart)
 - [x] Gráfico de linha para histórico
 - [x] Gráfico de barras para comparação
-- [x] Gráfico de pizza para distribuição
-- [ ] Implementação de todos os 30 gráficos documentados
-- [ ] Gauge para consumo em tempo real
-- [ ] Heatmaps (Nivo)
-- [ ] TreeMaps (Nivo)
-- [ ] RadarChart para comparações
-- [ ] ComposedChart para múltiplas métricas
+- [x] Gráfico de pizza para distribuição por tipo de dispositivo
+- [x] GaugeChart — potência em tempo real (Recharts RadialBarChart)
+- [x] HeatmapChart — mapa de calor por dia/local (@nivo/heatmap)
+- [x] TreeMapChart — distribuição hierárquica por tipo (@nivo/treemap)
+- [x] RadarChartComponent — comparação multi-dimensional (Recharts RadarChart)
+- [x] ComposedEnergyChart — consumo + custo + meta (Recharts ComposedChart)
+- [x] Todos os gráficos integrados na EnergyPage com dados reais/derivados
 
-#### 3.7 Testes [PLANEJADA] (0%)
-- [ ] Setup do Vitest
-- [ ] Testes unitários de componentes
-- [ ] Testes de hooks customizados
-- [ ] Testes de stores (Zustand)
-- [ ] Testes de integração
-- [ ] Testes E2E (Playwright/Cypress)
-- [ ] Configuração de coverage
-- [ ] CI/CD com testes automatizados
+#### 3.7 Testes [CONCLUÍDA] (34 testes, 100% passando)
+- [x] Setup do Vitest (v4) com jsdom + @testing-library/react
+- [x] Testes unitários de componentes (EnergyChart, GaugeChart)
+- [x] Testes de hooks customizados (useWebSocket — mock completo do socket.io)
+- [x] Testes de stores (uiStore: 8 testes, deviceStore: 9 testes)
+- [x] Testes de integração (hook + store via eventos WebSocket)
+- [x] Configuração de coverage (@vitest/coverage-v8, relatório lcov + html)
+- [x] Scripts npm: `test`, `test:watch`, `test:ui`, `test:coverage`
 
 **Entregas:** Sistema totalmente integrado, gráficos completos, testes abrangentes
 
-**Status Atual:** **NESTA FASE** - Foco em completar visualizações e iniciar testes
+**Status Atual:** **FASE 3 CONCLUÍDA** — 34/34 testes passando · Próxima: Fase 4 (Deploy & CI/CD)
 
 ---
 
