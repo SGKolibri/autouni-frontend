@@ -1,12 +1,12 @@
 import '@testing-library/jest-dom';
 
 // jsdom does not implement ResizeObserver — required by Recharts ResponsiveContainer
-global.ResizeObserver = class ResizeObserver {
+globalThis.ResizeObserver = class ResizeObserver {
   private cb: ResizeObserverCallback;
   constructor(cb: ResizeObserverCallback) { this.cb = cb; }
   observe(target: Element) {
     // Simulate a non-zero bounding rect so Recharts renders
-    this.cb([{ target, contentRect: { width: 800, height: 400 } } as any], this);
+    this.cb([{ target, contentRect: { width: 800, height: 400 } } as ResizeObserverEntry], this);
   }
   unobserve() {}
   disconnect() {}
