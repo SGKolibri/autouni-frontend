@@ -177,8 +177,8 @@ cp .env.example .env
 
 Edite o arquivo `.env`:
 ```env
-VITE_API_URL=http://localhost:3001/api
-VITE_WS_URL=http://localhost:3001
+VITE_API_URL=http://localhost:10000/api
+VITE_WS_URL=http://localhost:10000
 ```
 
 ### 4. Inicie o servidor de desenvolvimento
@@ -188,7 +188,7 @@ npm run dev
 
 ### 5. Acesse no navegador
 ```
-http://localhost:3000
+http://localhost:5173
 ```
 
 ---
@@ -574,7 +574,7 @@ Configure CORS no backend:
 ```typescript
 // NestJS
 app.enableCors({
-  origin: 'http://localhost:3000',
+  origin: 'http://localhost:5173',
   credentials: true,
 });
 ```
