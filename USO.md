@@ -367,7 +367,7 @@ import { ReportType, ReportFormat } from '@/types';
 function GenerateEnergyReport() {
   const generateMutation = useMutation({
     mutationFn: async () => {
-      const response = await apiService.post('/reports/generate', {
+      const response = await apiService.post('/reports', {
         type: ReportType.ENERGY_CONSUMPTION,
         format: ReportFormat.PDF,
         filters: {

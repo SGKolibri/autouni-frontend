@@ -40,6 +40,7 @@ import {
   Cancel,
 } from '@mui/icons-material';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useAuthStore } from '@store/authStore';
 import apiService from '@services/api';
 import { Report, ReportType, ReportFormat, ReportStatus } from '@/types';
 import { format } from 'date-fns';
@@ -47,6 +48,7 @@ import { ptBR } from 'date-fns/locale';
 
 const ReportsPage = () => {
   const queryClient = useQueryClient();
+  const { user } = useAuthStore();
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [selectedType, setSelectedType] = useState<ReportType | null>(null);
@@ -67,7 +69,25 @@ const ReportsPage = () => {
 
   const generateReportMutation = useMutation({
     mutationFn: async (data: typeof reportForm) => {
-      const response = await apiService.post('/reports/generate', data);
+      const suppliedTitle = (data as any).title;
+      const hasGoodTitle = typeof suppliedTitle === 'string' && suppliedTitle.trim().length >= 5;
+
+      const title = hasGoodTitle
+        ? suppliedTitle.trim()
+        : `Relatório ${data.type.replace('_', ' ')} ${data.startDate}${data.endDate ? ` - ${data.endDate}` : ''}`;
+
+      const payload = {
+        type: data.type,
+        title,
+        format: data.format,
+        filters: {
+          startDate: data.startDate,
+          endDate: data.endDate,
+        },
+        createdById: user?.id ?? '',
+      };
+
+      const response = await apiService.post('/reports', payload);
       return response.data;
     },
     onSuccess: () => {
@@ -149,9 +169,47 @@ const ReportsPage = () => {
     generateReportMutation.mutate(reportForm);
   };
 
-  const handleDownload = (report: Report) => {
-    if (report.fileUrl) {
-      window.open(report.fileUrl, '_blank');
+  const handleDownload = async (report: Report) => {
+    const apiBase = import.meta.env.VITE_API_URL || 'http://localhost:10000';
+    const base = apiBase.replace(/\/$/, '');
+    const url = `${base}/reports/${report.id}/download`;
+
+    try {
+      const response = await apiService.get<Blob>(url, { responseType: 'blob' as const });
+      const blob = response.data as Blob;
+
+      // Try to extract filename from Content-Disposition header
+      const contentDisposition = (response as any).headers?.['content-disposition'] || (response as any).headers?.['Content-Disposition'];
+      const extMap: Record<string, string> = { PDF: 'pdf', CSV: 'csv', XLSX: 'xlsx' };
+      const fallbackExt = extMap[report.format] || 'bin';
+      let filename = (report.title ? report.title.replace(/[^\w.\-]+/g, '_') : report.id) + `.${fallbackExt}`;
+
+      if (contentDisposition) {
+        const m = /filename\*?=(?:UTF-8'')?["']?([^;"']+)["']?/.exec(contentDisposition);
+        if (m && m[1]) {
+          try {
+            filename = decodeURIComponent(m[1]);
+          } catch (e) {
+            filename = m[1];
+          }
+        }
+      }
+
+      const blobUrl = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = blobUrl;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      window.URL.revokeObjectURL(blobUrl);
+    } catch (err: any) {
+      if (err?.response?.status === 401) {
+        // Token missing/expired — redirect to login (or show a message)
+        window.location.href = '/login';
+        return;
+      }
+      console.error('Download failed', err);
     }
   };
 
