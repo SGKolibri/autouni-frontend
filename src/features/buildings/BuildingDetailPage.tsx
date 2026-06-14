@@ -32,11 +32,7 @@ const BuildingDetailPage = () => {
 
   const { data: building, isLoading } = useQuery({
     queryKey: ['buildings', buildingId, 'details'],
-    queryFn: async () => {
-      // Usa /details para obter building com floors incluídos
-      const response = await apiService.get<Building>(`/buildings/${buildingId}/details`);
-      return response.data;
-    },
+    queryFn: () => apiService.getBuildingDetails(buildingId!),
     enabled: !!buildingId,
   });
 
@@ -292,7 +288,7 @@ const BuildingDetailPage = () => {
                 {building.totalEnergy?.toFixed(2) || '0.00'}
               </Typography>
               <Typography variant="caption" color="text.secondary" fontWeight={600} sx={{ textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                kWh Consumidos
+                kWh{building.energyPeriod === 'today' ? ' Hoje' : building.energyPeriod === 'week' ? ' Esta Semana' : building.energyPeriod === 'month' ? ' Este Mês' : ' Consumidos'}
               </Typography>
             </Box>
           </Box>

@@ -29,8 +29,17 @@ import {
   TriggerType,
   NotificationType,
   DeviceControlResponse,
-  DeviceStats,
+  GlobalEnergyStats,
+  EnergyHistoryResponse,
+  EnergyComparisonResponse,
 } from "@/types";
+import {
+  buildDeviceStats,
+  normalizeBuilding,
+  normalizeDevice,
+  normalizeFloor,
+  normalizeRoom,
+} from "@utils/device";
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:10000";
 
@@ -327,17 +336,17 @@ class ApiService {
 
   async getBuildings() {
     const response = await this.api.get<Building[]>("/buildings");
-    return response.data;
+    return response.data.map(normalizeBuilding);
   }
 
   async getBuildingById(id: string) {
     const response = await this.api.get<Building>(`/buildings/${id}`);
-    return response.data;
+    return normalizeBuilding(response.data);
   }
 
   async getBuildingDetails(id: string) {
     const response = await this.api.get<Building>(`/buildings/${id}/details`);
-    return response.data;
+    return normalizeBuilding(response.data);
   }
 
   async getBuildingStats(id: string) {
@@ -366,22 +375,22 @@ class ApiService {
 
   async getFloors() {
     const response = await this.api.get<Floor[]>("/floors");
-    return response.data;
+    return response.data.map(normalizeFloor);
   }
 
   async getFloorById(id: string) {
     const response = await this.api.get<Floor>(`/floors/${id}`);
-    return response.data;
+    return normalizeFloor(response.data);
   }
 
   async getFloorDetails(id: string) {
     const response = await this.api.get<Floor>(`/floors/${id}/details`);
-    return response.data;
+    return normalizeFloor(response.data);
   }
 
   async getFloorsByBuilding(buildingId: string) {
     const response = await this.api.get<Floor[]>(`/floors/building/${buildingId}`);
-    return response.data;
+    return response.data.map(normalizeFloor);
   }
 
   async createFloor(data: Partial<Floor>) {
@@ -405,27 +414,27 @@ class ApiService {
 
   async getRooms() {
     const response = await this.api.get<Room[]>("/rooms");
-    return response.data;
+    return response.data.map(normalizeRoom);
   }
 
   async getRoomById(id: string) {
     const response = await this.api.get<Room>(`/rooms/${id}`);
-    return response.data;
+    return normalizeRoom(response.data);
   }
 
   async getRoomDetails(id: string) {
     const response = await this.api.get<Room>(`/rooms/${id}/details`);
-    return response.data;
+    return normalizeRoom(response.data);
   }
 
   async getRoomsByFloor(floorId: string) {
     const response = await this.api.get<Room[]>(`/rooms/floor/${floorId}`);
-    return response.data;
+    return response.data.map(normalizeRoom);
   }
 
   async getRoomsByType(type: RoomType) {
     const response = await this.api.get<Room[]>(`/rooms/type/${type}`);
-    return response.data;
+    return response.data.map(normalizeRoom);
   }
 
   async createRoom(data: Partial<Room>) {
@@ -449,47 +458,47 @@ class ApiService {
 
   async getDevices() {
     const response = await this.api.get<Device[]>("/devices");
-    return response.data;
+    return response.data.map(normalizeDevice);
   }
 
   async getDeviceStats() {
-    const response = await this.api.get<DeviceStats>("/devices/stats");
-    return response.data;
+    const devices = await this.getDevices();
+    return buildDeviceStats(devices);
   }
 
   async getDeviceById(id: string) {
     const response = await this.api.get<Device>(`/devices/${id}`);
-    return response.data;
+    return normalizeDevice(response.data);
   }
 
   async getDevicesByRoom(roomId: string) {
     const response = await this.api.get<Device[]>(`/devices/room/${roomId}`);
-    return response.data;
+    return response.data.map(normalizeDevice);
   }
 
   async getDevicesByStatus(status: DeviceStatus) {
     const response = await this.api.get<Device[]>(`/devices/status/${status}`);
-    return response.data;
+    return response.data.map(normalizeDevice);
   }
 
   async createDevice(data: Partial<Device>) {
     const response = await this.api.post<Device>("/devices", data);
-    return response.data;
+    return normalizeDevice(response.data);
   }
 
   async updateDevice(id: string, data: Partial<Device>) {
     const response = await this.api.put<Device>(`/devices/${id}`, data);
-    return response.data;
+    return normalizeDevice(response.data);
   }
 
   async updateDeviceStatus(id: string, status: DeviceStatus) {
     const response = await this.api.put<Device>(`/devices/${id}/status`, { status });
-    return response.data;
+    return normalizeDevice(response.data);
   }
 
   async updateDeviceOnline(id: string, online: boolean) {
     const response = await this.api.put<Device>(`/devices/${id}/online`, { online });
-    return response.data;
+    return normalizeDevice(response.data);
   }
 
   async controlDevice(id: string, command: string, value?: any) {
@@ -507,6 +516,22 @@ class ApiService {
   // ============================================================================
   // ENERGY
   // ============================================================================
+
+  async getGlobalEnergyStats(period?: 'today' | 'week' | 'month') {
+    const params = period ? { period } : {};
+    const response = await this.api.get<GlobalEnergyStats>('/energy/stats', { params });
+    return response.data;
+  }
+
+  async getEnergyHistory(params?: { period?: string; level?: string; id?: string }) {
+    const response = await this.api.get<EnergyHistoryResponse>('/energy/history', { params });
+    return response.data;
+  }
+
+  async getEnergyComparison(params?: { level?: string }) {
+    const response = await this.api.get<EnergyComparisonResponse>('/energy/comparison', { params });
+    return response.data;
+  }
 
   async createEnergyReading(data: Partial<EnergyReading>) {
     const response = await this.api.post<EnergyReading>("/energy/readings", data);

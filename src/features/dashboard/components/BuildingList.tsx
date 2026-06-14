@@ -15,17 +15,13 @@ import {
 import { ChevronRight, Business } from '@mui/icons-material';
 import { useQuery } from '@tanstack/react-query';
 import apiService from '@services/api';
-import { Building } from '@/types';
 
 const BuildingsList = () => {
   const navigate = useNavigate();
 
   const { data: buildings, isLoading } = useQuery({
     queryKey: ['buildings'],
-    queryFn: async () => {
-      const response = await apiService.get<Building[]>('/buildings');
-      return response.data;
-    },
+    queryFn: () => apiService.getBuildings(),
   });
 
   if (isLoading) {

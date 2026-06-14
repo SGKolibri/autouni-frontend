@@ -21,7 +21,6 @@ import {
 } from '@mui/icons-material';
 import { useQuery } from '@tanstack/react-query';
 import apiService from '@services/api';
-import { Building } from '@/types';
 
 const BuildingsPage = () => {
   const navigate = useNavigate();
@@ -29,10 +28,7 @@ const BuildingsPage = () => {
 
   const { data: buildings, isLoading } = useQuery({
     queryKey: ['buildings'],
-    queryFn: async () => {
-      const response = await apiService.get<Building[]>('/buildings');
-      return response.data;
-    },
+    queryFn: () => apiService.getBuildings(),
   });
 
   const handleBuildingClick = (buildingId: string) => {
@@ -173,7 +169,7 @@ const BuildingsPage = () => {
                       <BoltOutlined sx={{ fontSize: 20, color: 'warning.main' }} />
                       <Box sx={{ flexGrow: 1 }}>
                         <Typography variant="caption" color="text.secondary">
-                          Consumo
+                          Consumo{building.energyPeriod === 'today' ? ' hoje' : building.energyPeriod === 'week' ? ' (semana)' : building.energyPeriod === 'month' ? ' (mês)' : ''}
                         </Typography>
                         <Typography variant="body2" fontWeight={600}>
                           {building.totalEnergy?.toFixed(2) || '0.00'} kWh

@@ -49,6 +49,7 @@ export interface Building {
   location: string;
   floors?: Floor[];
   totalEnergy?: number;
+  energyPeriod?: 'today' | 'week' | 'month';
   activeDevices?: number;
   createdAt: string;
   updatedAt: string;
@@ -342,6 +343,44 @@ export interface DeviceStats {
   totalDevices: number;
   byType?: Record<DeviceType, number>;
   byStatus?: Record<DeviceStatus, number>;
+}
+
+export interface GlobalEnergyStats {
+  totalKwh: number;
+  count: number;
+  avgWh: number;
+  maxWh: number;
+  minWh: number;
+  period: {
+    label: string;
+    from: string;
+    to: string;
+  };
+}
+
+export interface EnergyHistoryBucket {
+  bucket: string;
+  totalKwh: number;
+  count: number;
+}
+
+export interface EnergyHistoryResponse {
+  history: EnergyHistoryBucket[];
+  period: string;
+  level: string;
+}
+
+export interface EnergyComparisonEntry {
+  id: string;
+  name: string;
+  totalKwh: number;
+  count: number;
+}
+
+export interface EnergyComparisonResponse {
+  comparison: EnergyComparisonEntry[];
+  level: string;
+  period: any;
 }
 
 export interface DeviceControlResponse {

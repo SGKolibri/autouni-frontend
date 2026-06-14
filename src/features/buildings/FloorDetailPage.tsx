@@ -22,7 +22,7 @@ import {
 } from "@mui/icons-material";
 import { useQuery } from "@tanstack/react-query";
 import apiService from "@services/api";
-import { Building, Floor, RoomType } from "@/types";
+import { RoomType } from "@/types";
 import EnergyChart from "@components/charts/EnergyChart";
 
 const FloorDetailPage = () => {
@@ -31,22 +31,13 @@ const FloorDetailPage = () => {
 
   const { data: floor, isLoading } = useQuery({
     queryKey: ["floors", floorId, "details"],
-    queryFn: async () => {
-      // Usa /details para obter floor com rooms incluídos
-      const response = await apiService.get<Floor>(
-        `/floors/${floorId}/details`
-      );
-      return response.data;
-    },
+    queryFn: () => apiService.getFloorDetails(floorId!),
     enabled: !!floorId,
   });
 
   const { data: building } = useQuery({
     queryKey: ["buildings", floor?.buildingId],
-    queryFn: async () => {
-      const response = await apiService.get<Building>(`/buildings/${floor?.buildingId}`);
-      return response.data;
-    },
+    queryFn: () => apiService.getBuildingById(floor!.buildingId),
     enabled: !!floor?.buildingId,
   });
 

@@ -22,10 +22,12 @@ import {
 import { DataGrid, GridColDef, GridRowSelectionModel } from '@mui/x-data-grid';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import apiService from '@services/api';
-import { Device, DeviceStatus, DeviceType } from '../../types';
+import { Device, DeviceStatus, DeviceType } from '@/types';
 import { useDeviceStore } from '@store/deviceStore';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import DeviceStatusPieChart from '@components/charts/DeviceStatusPieChart';
+import DevicesByTypeChart from '@components/charts/DevicesByTypeChart';
 
 const DevicesPage = () => {
   const queryClient = useQueryClient();
@@ -38,6 +40,11 @@ const DevicesPage = () => {
   const [rowSelectionModel, setRowSelectionModel] = useState<GridRowSelectionModel>({
     type: 'include',
     ids: new Set<string>()
+  });
+
+  const { data: deviceStats } = useQuery({
+    queryKey: ['devices', 'stats'],
+    queryFn: () => apiService.getDeviceStats(),
   });
 
   const { data: devices, isLoading, refetch } = useQuery({
@@ -213,6 +220,35 @@ const DevicesPage = () => {
           Conexão WebSocket desconectada. Os status dos dispositivos podem não estar atualizados em tempo real.
         </Alert>
       )}
+
+      {/* Charts Row */}
+      <Box
+        sx={{
+          display: 'grid',
+          gridTemplateColumns: { xs: '1fr', md: 'repeat(2, 1fr)' },
+          gap: { xs: 2, md: 3 },
+          mb: 3,
+        }}
+      >
+        <Paper sx={{ p: 3, borderRadius: 3, border: '1px solid #E5E7EB' }}>
+          <Typography variant="h6" fontWeight={700} sx={{ mb: 0.5 }}>
+            Status dos Dispositivos
+          </Typography>
+          <Typography variant="body2" color="text.secondary" fontWeight={500} sx={{ mb: 2 }}>
+            Distribuição por estado
+          </Typography>
+          <DeviceStatusPieChart data={deviceStats} height={240} />
+        </Paper>
+        <Paper sx={{ p: 3, borderRadius: 3, border: '1px solid #E5E7EB' }}>
+          <Typography variant="h6" fontWeight={700} sx={{ mb: 0.5 }}>
+            Dispositivos por Tipo
+          </Typography>
+          <Typography variant="body2" color="text.secondary" fontWeight={500} sx={{ mb: 2 }}>
+            Distribuição por categoria
+          </Typography>
+          <DevicesByTypeChart data={deviceStats} height={240} />
+        </Paper>
+      </Box>
 
       {/* Filters & Search */}
       <Paper sx={{ p: { xs: 2, sm: 3 }, mb: 3, borderRadius: 3 }}>

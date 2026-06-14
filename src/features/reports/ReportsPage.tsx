@@ -43,6 +43,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuthStore } from '@store/authStore';
 import apiService from '@services/api';
 import { Report, ReportType, ReportFormat, ReportStatus } from '@/types';
+import ReportsStatusChart from '@components/charts/ReportsStatusChart';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 
@@ -302,6 +303,17 @@ const ReportsPage = () => {
           </Box>
         ))}
       </Box>
+
+      {/* Reports Status Chart */}
+      <Paper sx={{ p: 3, borderRadius: 3, border: '1px solid #E5E7EB', mb: 4 }}>
+        <Typography variant="h6" fontWeight={700} sx={{ mb: 0.5 }}>
+          Visão Geral dos Relatórios
+        </Typography>
+        <Typography variant="body2" color="text.secondary" fontWeight={500} sx={{ mb: 2 }}>
+          Status e distribuição por tipo
+        </Typography>
+        <ReportsStatusChart reports={reports} />
+      </Paper>
 
       {/* Recent Reports */}
       <Paper sx={{ p: { xs: 2, sm: 3, md: 4 }, borderRadius: 3, overflow: 'hidden' }}>

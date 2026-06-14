@@ -3,6 +3,7 @@ import { io, Socket } from 'socket.io-client';
 import { useDeviceStore } from '@store/deviceStore';
 import { useUIStore } from '@store/uiStore';
 import { DeviceUpdateMessage, WebSocketMessage, NotificationType } from '@/types';
+import { normalizeDeviceStatus } from '@utils/device';
 
 const WS_URL = import.meta.env.VITE_WS_URL || 'http://localhost:3001';
 const MAX_RECONNECT_ATTEMPTS = 10;
@@ -84,7 +85,7 @@ export const useWebSocket = () => {
     socketRef.current.on('device:update', (message: DeviceUpdateMessage) => {
       const { deviceId, status, online, intensity, temperature } = message;
       const updates: Partial<DeviceUpdateMessage> = {};
-      if (status !== undefined) updates.status = status;
+      if (status !== undefined) updates.status = normalizeDeviceStatus(status);
       if (online !== undefined) updates.online = online;
       if (intensity !== undefined) updates.intensity = intensity;
       if (temperature !== undefined) updates.temperature = temperature;
@@ -93,7 +94,7 @@ export const useWebSocket = () => {
 
     socketRef.current.on('device:status', (message: DeviceUpdateMessage) => {
       if (message.status) {
-        updateDeviceStatus(message.deviceId, message.status);
+        updateDeviceStatus(message.deviceId, normalizeDeviceStatus(message.status));
       }
     });
 

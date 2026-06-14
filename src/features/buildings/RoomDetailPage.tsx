@@ -26,8 +26,9 @@ import {
 } from "@mui/icons-material";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import apiService from "@services/api";
-import { Room, Device, DeviceType, DeviceStatus, DeviceControlResponse } from "@/types";
+import { Device, DeviceType, DeviceStatus, DeviceControlResponse } from "@/types";
 import { useDeviceStore } from "@store/deviceStore";
+import { normalizeDeviceStatus } from "@utils/device";
 
 const RoomDetailPage = () => {
   const { roomId } = useParams<{ roomId: string }>();
@@ -39,7 +40,7 @@ const RoomDetailPage = () => {
 
   const { data: room, isLoading, refetch: refetchRoom } = useQuery({
     queryKey: ["rooms", roomId],
-    queryFn: () => apiService.get<Room>(`/rooms/${roomId}/details`).then((res) => res.data),
+    queryFn: () => apiService.getRoomDetails(roomId!),
     enabled: !!roomId,
   });
 
@@ -61,7 +62,7 @@ const RoomDetailPage = () => {
     },
     onSuccess: (data, variables) => {
       // Atualiza store local
-      updateDevice(variables.deviceId, { status: data.status });
+      updateDevice(variables.deviceId, { status: normalizeDeviceStatus(data.status) });
       // Invalida queries relacionadas
       queryClient.invalidateQueries({ queryKey: ["rooms", roomId] });
     },

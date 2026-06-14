@@ -32,7 +32,8 @@ import {
 } from '@mui/icons-material';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import apiService from '@services/api';
-import { Automation, TriggerType } from '@/types';
+import { Automation, AutomationStats, TriggerType } from '@/types';
+import { AutomationTypePieChart, TopAutomationsChart, AutomationExecutionsChart } from '@components/charts/AutomationCharts';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 
@@ -45,6 +46,14 @@ const AutomationsPage = () => {
     queryKey: ['automations'],
     queryFn: async () => {
       const response = await apiService.get<Automation[]>('/automations');
+      return response.data;
+    },
+  });
+
+  const { data: automationStats } = useQuery({
+    queryKey: ['automations', 'stats'],
+    queryFn: async () => {
+      const response = await apiService.get<AutomationStats>('/automations/stats');
       return response.data;
     },
   });
@@ -144,6 +153,45 @@ const AutomationsPage = () => {
           Nova Automação
         </Button>
       </Box>
+
+      {/* Analytics Section */}
+      <Box
+        sx={{
+          display: 'grid',
+          gridTemplateColumns: { xs: '1fr', md: 'repeat(2, 1fr)' },
+          gap: { xs: 2, md: 3 },
+          mb: 3,
+        }}
+      >
+        <Paper sx={{ p: 3, borderRadius: 3, border: '1px solid #E5E7EB' }}>
+          <Typography variant="h6" fontWeight={700} sx={{ mb: 0.5 }}>
+            Tipos de Automação
+          </Typography>
+          <Typography variant="body2" color="text.secondary" fontWeight={500} sx={{ mb: 2 }}>
+            Distribuição por tipo de gatilho
+          </Typography>
+          <AutomationTypePieChart byType={automationStats?.byType} total={automationStats?.total} height={240} />
+        </Paper>
+        <Paper sx={{ p: 3, borderRadius: 3, border: '1px solid #E5E7EB' }}>
+          <Typography variant="h6" fontWeight={700} sx={{ mb: 0.5 }}>
+            Resumo
+          </Typography>
+          <Typography variant="body2" color="text.secondary" fontWeight={500} sx={{ mb: 2 }}>
+            Indicadores de automação
+          </Typography>
+          <AutomationExecutionsChart stats={automationStats} />
+        </Paper>
+      </Box>
+
+      <Paper sx={{ p: 3, borderRadius: 3, border: '1px solid #E5E7EB', mb: 3 }}>
+        <Typography variant="h6" fontWeight={700} sx={{ mb: 0.5 }}>
+          Automações
+        </Typography>
+        <Typography variant="body2" color="text.secondary" fontWeight={500} sx={{ mb: 2 }}>
+          Habilitadas vs desabilitadas (top 10)
+        </Typography>
+        <TopAutomationsChart automations={automations} height={280} />
+      </Paper>
 
       {/* Automations */}
       {isLoading ? (
