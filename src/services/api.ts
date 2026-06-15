@@ -46,19 +46,19 @@ const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:10000";
 // Helper para verificar se o token é válido
 const isTokenExpired = (token: string | null): boolean => {
   if (!token) return true;
-  
+
   try {
-    const parts = token.split('.');
+    const parts = token.split(".");
     if (parts.length !== 3) return true;
-    
+
     const payload = JSON.parse(atob(parts[1]));
     if (!payload.exp) return true;
-    
+
     const exp = payload.exp * 1000;
     const now = Date.now();
     const bufferTime = 30000; // 30 segundos
-    
-    return (exp - now) <= bufferTime;
+
+    return exp - now <= bufferTime;
   } catch (error) {
     console.error("[isTokenExpired] Error parsing token:", error);
     return true;
@@ -104,7 +104,7 @@ class ApiService {
         // Pega o token antes de qualquer operação
         let token = localStorage.getItem("accessToken");
         const refreshToken = localStorage.getItem("refreshToken");
-        
+
         // Se tem token mas está expirado, tenta renovar
         if (token && isTokenExpired(token)) {
           // Se já está renovando, aguarda na fila
@@ -128,18 +128,18 @@ class ApiService {
             localStorage.removeItem("accessToken");
             localStorage.removeItem("refreshToken");
             localStorage.removeItem("user");
-            
+
             // Rejeita todas as requisições na fila
             const error = new Error("Session expired - no valid refresh token");
             this.processQueue(error, null);
-            
+
             window.location.href = "/login";
             return Promise.reject(error);
           }
-          
+
           // Marca que está renovando
           this.isRefreshing = true;
-          
+
           // Tenta renovar o token
           try {
             const response = await axios.post(
@@ -149,54 +149,57 @@ class ApiService {
                 headers: {
                   "Content-Type": "application/json",
                 },
-              }
+              },
             );
 
-            const { accessToken, refreshToken: newRefreshToken } = response.data;
-            
+            const { accessToken, refreshToken: newRefreshToken } =
+              response.data;
+
             // Salva os novos tokens
             localStorage.setItem("accessToken", accessToken);
             localStorage.setItem("refreshToken", newRefreshToken);
-            
+
             // Atualiza a variável local para usar o novo token
             token = accessToken;
-            
+
             // Processa a fila de requisições pendentes
             this.processQueue(null, accessToken);
             this.isRefreshing = false;
           } catch (error: any) {
-            console.error("[API] Token refresh failed:", error.response?.data || error.message);
+            console.error(
+              "[API] Token refresh failed:",
+              error.response?.data || error.message,
+            );
             localStorage.removeItem("accessToken");
             localStorage.removeItem("refreshToken");
             localStorage.removeItem("user");
-            
+
             // Rejeita todas as requisições na fila
             const refreshError = new Error("Session expired - refresh failed");
             this.processQueue(refreshError, null);
             this.isRefreshing = false;
-            
+
             window.location.href = "/login";
             return Promise.reject(refreshError);
           }
         }
-        
+
         // Adiciona o token ao header se existir
         if (token && config.headers) {
           config.headers.Authorization = `Bearer ${token}`;
         }
-        
+
         return config;
       },
       (error: AxiosError) => {
         return Promise.reject(error);
-      }
+      },
     );
 
     // Response interceptor - trata erros e refresh token
     this.api.interceptors.response.use(
       (response) => response,
       async (error: AxiosError) => {
-
         const originalRequest = error.config as InternalAxiosRequestConfig & {
           _retry?: boolean;
         };
@@ -219,11 +222,12 @@ class ApiService {
                 headers: {
                   "Content-Type": "application/json",
                 },
-              }
+              },
             );
 
-            const { accessToken, refreshToken: newRefreshToken } = response.data;
-            
+            const { accessToken, refreshToken: newRefreshToken } =
+              response.data;
+
             // Atualiza os tokens no localStorage
             localStorage.setItem("accessToken", accessToken);
             localStorage.setItem("refreshToken", newRefreshToken);
@@ -232,28 +236,28 @@ class ApiService {
             if (originalRequest.headers) {
               originalRequest.headers.Authorization = `Bearer ${accessToken}`;
             }
-            
+
             return this.api(originalRequest);
           } catch (refreshError: any) {
             // Se falhar, limpa tokens e redireciona para login
             localStorage.removeItem("accessToken");
             localStorage.removeItem("refreshToken");
             localStorage.removeItem("user");
-            
+
             window.location.href = "/login";
             return Promise.reject(refreshError);
           }
         }
 
         return Promise.reject(error);
-      }
+      },
     );
   }
 
   // ============================================================================
   // MÉTODOS HTTP BÁSICOS (mantidos para casos específicos)
   // ============================================================================
-  
+
   public get<T>(url: string, config = {}) {
     return this.api.get<T>(url, config);
   }
@@ -279,7 +283,10 @@ class ApiService {
   // ============================================================================
 
   async login(credentials: LoginCredentials) {
-    const response = await this.api.post<LoginResponse>("/auth/login", credentials);
+    const response = await this.api.post<LoginResponse>(
+      "/auth/login",
+      credentials,
+    );
     return response.data;
   }
 
@@ -289,10 +296,10 @@ class ApiService {
   }
 
   async refreshToken(refreshToken: string) {
-    const response = await this.api.post<{ accessToken: string; refreshToken: string }>(
-      "/auth/refresh",
-      { refreshToken }
-    );
+    const response = await this.api.post<{
+      accessToken: string;
+      refreshToken: string;
+    }>("/auth/refresh", { refreshToken });
     return response.data;
   }
 
@@ -350,7 +357,9 @@ class ApiService {
   }
 
   async getBuildingStats(id: string) {
-    const response = await this.api.get<BuildingStats>(`/buildings/${id}/stats`);
+    const response = await this.api.get<BuildingStats>(
+      `/buildings/${id}/stats`,
+    );
     return response.data;
   }
 
@@ -389,7 +398,9 @@ class ApiService {
   }
 
   async getFloorsByBuilding(buildingId: string) {
-    const response = await this.api.get<Floor[]>(`/floors/building/${buildingId}`);
+    const response = await this.api.get<Floor[]>(
+      `/floors/building/${buildingId}`,
+    );
     return response.data.map(normalizeFloor);
   }
 
@@ -492,19 +503,23 @@ class ApiService {
   }
 
   async updateDeviceStatus(id: string, status: DeviceStatus) {
-    const response = await this.api.put<Device>(`/devices/${id}/status`, { status });
+    const response = await this.api.put<Device>(`/devices/${id}/status`, {
+      status,
+    });
     return normalizeDevice(response.data);
   }
 
   async updateDeviceOnline(id: string, online: boolean) {
-    const response = await this.api.put<Device>(`/devices/${id}/online`, { online });
+    const response = await this.api.put<Device>(`/devices/${id}/online`, {
+      online,
+    });
     return normalizeDevice(response.data);
   }
 
   async controlDevice(id: string, command: string, value?: any) {
     const response = await this.api.post<DeviceControlResponse>(
       `/devices/${id}/control`,
-      { command, value }
+      { command, value },
     );
     return response.data;
   }
@@ -517,98 +532,113 @@ class ApiService {
   // ENERGY
   // ============================================================================
 
-  async getGlobalEnergyStats(period?: 'today' | 'week' | 'month') {
+  async getGlobalEnergyStats(period?: "today" | "week" | "month") {
     const params = period ? { period } : {};
-    const response = await this.api.get<GlobalEnergyStats>('/energy/stats', { params });
+    const response = await this.api.get<GlobalEnergyStats>("/energy/stats", {
+      params,
+    });
     return response.data;
   }
 
-  async getEnergyHistory(params?: { period?: string; level?: string; id?: string }) {
-    const response = await this.api.get<EnergyHistoryResponse>('/energy/history', { params });
+  async getEnergyHistory(params?: {
+    period?: string;
+    level?: string;
+    id?: string;
+  }) {
+    const response = await this.api.get<EnergyHistoryResponse>(
+      "/energy/history",
+      { params },
+    );
     return response.data;
   }
 
   async getEnergyComparison(params?: { level?: string }) {
-    const response = await this.api.get<EnergyComparisonResponse>('/energy/comparison', { params });
+    const response = await this.api.get<EnergyComparisonResponse>(
+      "/energy/comparison",
+      { params },
+    );
     return response.data;
   }
 
   async createEnergyReading(data: Partial<EnergyReading>) {
-    const response = await this.api.post<EnergyReading>("/energy/readings", data);
+    const response = await this.api.post<EnergyReading>(
+      "/energy/readings",
+      data,
+    );
     return response.data;
   }
 
   async getDeviceEnergyReadings(
     deviceId: string,
-    params?: { from?: string; to?: string; limit?: number }
+    params?: { from?: string; to?: string; limit?: number },
   ) {
     const response = await this.api.get<EnergyReading[]>(
       `/energy/devices/${deviceId}/readings`,
-      { params }
+      { params },
     );
     return response.data;
   }
 
   async getDeviceEnergyStats(
     deviceId: string,
-    params?: { from?: string; to?: string }
+    params?: { from?: string; to?: string },
   ) {
     const response = await this.api.get<EnergyStats>(
       `/energy/devices/${deviceId}/stats`,
-      { params }
+      { params },
     );
     return response.data;
   }
 
   async getRoomEnergyReadings(
     roomId: string,
-    params?: { from?: string; to?: string; limit?: number }
+    params?: { from?: string; to?: string; limit?: number },
   ) {
     const response = await this.api.get<EnergyReading[]>(
       `/energy/rooms/${roomId}/readings`,
-      { params }
+      { params },
     );
     return response.data;
   }
 
   async getRoomEnergyStats(
     roomId: string,
-    params?: { from?: string; to?: string }
+    params?: { from?: string; to?: string },
   ) {
     const response = await this.api.get<EnergyStats>(
       `/energy/rooms/${roomId}/stats`,
-      { params }
+      { params },
     );
     return response.data;
   }
 
   async getFloorEnergyStats(
     floorId: string,
-    params?: { from?: string; to?: string }
+    params?: { from?: string; to?: string },
   ) {
     const response = await this.api.get<EnergyStats>(
       `/energy/floors/${floorId}/stats`,
-      { params }
+      { params },
     );
     return response.data;
   }
 
   async getBuildingEnergyStats(
     buildingId: string,
-    params?: { from?: string; to?: string }
+    params?: { from?: string; to?: string },
   ) {
     const response = await this.api.get<EnergyStats>(
       `/energy/buildings/${buildingId}/stats`,
-      { params }
+      { params },
     );
     return response.data;
   }
 
   async cleanupEnergyReadings(olderThan: string) {
-    const response = await this.api.delete<{ message: string; deleted: number }>(
-      "/energy/readings/cleanup",
-      { data: { olderThan } }
-    );
+    const response = await this.api.delete<{
+      message: string;
+      deleted: number;
+    }>("/energy/readings/cleanup", { data: { olderThan } });
     return response.data;
   }
 
@@ -632,7 +662,9 @@ class ApiService {
   }
 
   async getAutomationsByCreator(creatorId: string) {
-    const response = await this.api.get<Automation[]>(`/automations/creator/${creatorId}`);
+    const response = await this.api.get<Automation[]>(
+      `/automations/creator/${creatorId}`,
+    );
     return response.data;
   }
 
@@ -644,7 +676,7 @@ class ApiService {
   async getAutomationHistory(id: string, limit?: number) {
     const response = await this.api.get<AutomationHistory[]>(
       `/automations/${id}/history`,
-      { params: { limit } }
+      { params: { limit } },
     );
     return response.data;
   }
@@ -660,9 +692,12 @@ class ApiService {
   }
 
   async toggleAutomation(id: string, enabled: boolean) {
-    const response = await this.api.patch<Automation>(`/automations/${id}/toggle`, {
-      enabled,
-    });
+    const response = await this.api.patch<Automation>(
+      `/automations/${id}/toggle`,
+      {
+        enabled,
+      },
+    );
     return response.data;
   }
 
@@ -694,12 +729,16 @@ class ApiService {
   }
 
   async getUnreadNotifications() {
-    const response = await this.api.get<Notification[]>("/notifications/me/unread");
+    const response = await this.api.get<Notification[]>(
+      "/notifications/me/unread",
+    );
     return response.data;
   }
 
   async getUserNotifications(userId: string) {
-    const response = await this.api.get<Notification[]>(`/notifications/user/${userId}`);
+    const response = await this.api.get<Notification[]>(
+      `/notifications/user/${userId}`,
+    );
     return response.data;
   }
 
@@ -714,19 +753,23 @@ class ApiService {
   }
 
   async markNotificationAsRead(id: string) {
-    const response = await this.api.patch<Notification>(`/notifications/${id}/read`);
+    const response = await this.api.patch<Notification>(
+      `/notifications/${id}/read`,
+    );
     return response.data;
   }
 
   async markAllNotificationsAsRead() {
     const response = await this.api.patch<{ message: string; updated: number }>(
-      "/notifications/me/read-all"
+      "/notifications/me/read-all",
     );
     return response.data;
   }
 
   async deleteNotification(id: string) {
-    const response = await this.api.delete<{ message: string }>(`/notifications/${id}`);
+    const response = await this.api.delete<{ message: string }>(
+      `/notifications/${id}`,
+    );
     return response.data;
   }
 
@@ -755,7 +798,9 @@ class ApiService {
   }
 
   async getReportsByCreator(creatorId: string) {
-    const response = await this.api.get<Report[]>(`/reports/creator/${creatorId}`);
+    const response = await this.api.get<Report[]>(
+      `/reports/creator/${creatorId}`,
+    );
     return response.data;
   }
 
@@ -783,7 +828,9 @@ class ApiService {
   }
 
   async deleteReport(id: string) {
-    const response = await this.api.delete<{ message: string }>(`/reports/${id}`);
+    const response = await this.api.delete<{ message: string }>(
+      `/reports/${id}`,
+    );
     return response.data;
   }
 
@@ -794,7 +841,7 @@ class ApiService {
   async uploadFile<T>(
     url: string,
     file: File,
-    onProgress?: (progress: number) => void
+    onProgress?: (progress: number) => void,
   ) {
     const formData = new FormData();
     formData.append("file", file);
@@ -806,7 +853,7 @@ class ApiService {
       onUploadProgress: (progressEvent) => {
         if (onProgress && progressEvent.total) {
           const percentCompleted = Math.round(
-            (progressEvent.loaded * 100) / progressEvent.total
+            (progressEvent.loaded * 100) / progressEvent.total,
           );
           onProgress(percentCompleted);
         }

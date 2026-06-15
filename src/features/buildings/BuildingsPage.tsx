@@ -15,20 +15,36 @@ import {
   Add,
   Business,
   Layers,
-  MeetingRoom,
   BoltOutlined,
   DevicesOutlined,
+  Edit,
+  Delete,
 } from '@mui/icons-material';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import apiService from '@services/api';
+import { Building } from '@/types';
+import BuildingDialog from './BuildingDialog';
+import ConfirmDialog from '@components/common/ConfirmDialog';
 
 const BuildingsPage = () => {
   const navigate = useNavigate();
-  const [selectedBuilding, setSelectedBuilding] = useState<string | null>(null);
+  const queryClient = useQueryClient();
+
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [editBuilding, setEditBuilding] = useState<Building | null>(null);
+  const [deleteBuilding, setDeleteBuilding] = useState<Building | null>(null);
 
   const { data: buildings, isLoading } = useQuery({
     queryKey: ['buildings'],
     queryFn: () => apiService.getBuildings(),
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: (id: string) => apiService.deleteBuilding(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['buildings'] });
+      setDeleteBuilding(null);
+    },
   });
 
   const handleBuildingClick = (buildingId: string) => {
@@ -36,11 +52,22 @@ const BuildingsPage = () => {
   };
 
   const handleAddBuilding = () => {
-    // TODO: Abrir modal de criação
-    console.log('Add building');
+    setEditBuilding(null);
+    setDialogOpen(true);
   };
 
-  const getBuildingEnergy = (building: { todayEnergyKwh?: number; dailyConsumptionKwh?: number; totalEnergy?: number }) =>
+  const handleEditBuilding = (e: React.MouseEvent, building: Building) => {
+    e.stopPropagation();
+    setEditBuilding(building);
+    setDialogOpen(true);
+  };
+
+  const handleDeleteBuilding = (e: React.MouseEvent, building: Building) => {
+    e.stopPropagation();
+    setDeleteBuilding(building);
+  };
+
+  const getBuildingEnergy = (building: Building) =>
     building.todayEnergyKwh ?? building.dailyConsumptionKwh ?? building.totalEnergy ?? 0;
 
   if (isLoading) {
@@ -102,16 +129,41 @@ const BuildingsPage = () => {
               <Card
                 sx={{
                   height: '100%',
+                  position: 'relative',
                   transition: 'all 0.3s',
+                  '& .card-actions': { opacity: 0, transition: 'opacity 0.2s' },
                   '&:hover': {
                     transform: 'translateY(-4px)',
                     boxShadow: 4,
+                    '& .card-actions': { opacity: 1 },
                   },
                 }}
               >
+                {/* Hover action buttons - outside CardActionArea */}
+                <Box
+                  className="card-actions"
+                  sx={{ position: 'absolute', top: 8, right: 8, zIndex: 1, display: 'flex', gap: 0.5 }}
+                >
+                  <IconButton
+                    size="small"
+                    onClick={(e) => handleEditBuilding(e, building)}
+                    sx={{ bgcolor: 'background.paper', boxShadow: 1, '&:hover': { bgcolor: 'primary.light', color: 'white' } }}
+                  >
+                    <Edit fontSize="small" />
+                  </IconButton>
+                  <IconButton
+                    size="small"
+                    color="error"
+                    onClick={(e) => handleDeleteBuilding(e, building)}
+                    sx={{ bgcolor: 'background.paper', boxShadow: 1, '&:hover': { bgcolor: 'error.main', color: 'white' } }}
+                  >
+                    <Delete fontSize="small" />
+                  </IconButton>
+                </Box>
+
                 <CardActionArea onClick={() => handleBuildingClick(building.id)}>
                   <CardContent>
-                    {/* Building Icon */}
+                    {/* Building icon */}
                     <Box
                       sx={{
                         display: 'flex',
@@ -186,6 +238,21 @@ const BuildingsPage = () => {
           ))}
         </Box>
       )}
+
+      <BuildingDialog
+        open={dialogOpen}
+        building={editBuilding}
+        onClose={() => setDialogOpen(false)}
+      />
+
+      <ConfirmDialog
+        open={!!deleteBuilding}
+        title="Excluir Prédio"
+        message={`Tem certeza que deseja excluir "${deleteBuilding?.name}"? Esta ação não pode ser desfeita.`}
+        loading={deleteMutation.isPending}
+        onConfirm={() => deleteBuilding && deleteMutation.mutate(deleteBuilding.id)}
+        onClose={() => setDeleteBuilding(null)}
+      />
     </Box>
   );
 };

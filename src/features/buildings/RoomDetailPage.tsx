@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import {
   Box,
@@ -11,6 +12,7 @@ import {
   Divider,
   Alert,
   Button,
+  IconButton,
 } from "@mui/material";
 import {
   NavigateNext,
@@ -23,20 +25,36 @@ import {
   SensorsOutlined,
   PowerSettingsNew,
   Refresh,
+  Edit,
+  Delete,
 } from "@mui/icons-material";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import apiService from "@services/api";
-import { Device, DeviceType, DeviceStatus, DeviceControlResponse } from "@/types";
+import { Device, DeviceType, DeviceStatus, DeviceControlResponse, Room } from "@/types";
 import { useDeviceStore } from "@store/deviceStore";
 import { normalizeDeviceStatus } from "@utils/device";
+import RoomDialog from "./RoomDialog";
+import ConfirmDialog from "@components/common/ConfirmDialog";
 
 const RoomDetailPage = () => {
   const { roomId } = useParams<{ roomId: string }>();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
+  const [editRoomOpen, setEditRoomOpen] = useState(false);
+  const [deleteRoomOpen, setDeleteRoomOpen] = useState(false);
+
   const updateDevice = useDeviceStore((state) => state.updateDevice);
   const wsConnected = useDeviceStore((state) => state.wsConnected);
+
+  const deleteRoomMutation = useMutation({
+    mutationFn: () => apiService.deleteRoom(roomId!),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['floors'] });
+      queryClient.invalidateQueries({ queryKey: ['rooms'] });
+      navigate(-1);
+    },
+  });
 
   const { data: room, isLoading, refetch: refetchRoom } = useQuery({
     queryKey: ["rooms", roomId],
@@ -199,6 +217,23 @@ const RoomDetailPage = () => {
               <Typography variant="body1" color="text.secondary" fontWeight={500}>
                 Sala {room.name}
               </Typography>
+            </Box>
+            <Box sx={{ display: "flex", gap: 1, alignSelf: "flex-start" }}>
+              <IconButton
+                size="small"
+                onClick={() => setEditRoomOpen(true)}
+                sx={{ '&:hover': { backgroundColor: 'primary.light', color: 'white' } }}
+              >
+                <Edit />
+              </IconButton>
+              <IconButton
+                size="small"
+                color="error"
+                onClick={() => setDeleteRoomOpen(true)}
+                sx={{ '&:hover': { backgroundColor: 'error.main', color: 'white' } }}
+              >
+                <Delete />
+              </IconButton>
             </Box>
           </Box>
 
@@ -448,6 +483,25 @@ const RoomDetailPage = () => {
         )}
       </Box>
       </Box>
+
+      <RoomDialog
+        open={editRoomOpen}
+        floorId={room.floorId}
+        room={room as Room}
+        onClose={() => {
+          setEditRoomOpen(false);
+          queryClient.invalidateQueries({ queryKey: ['rooms', roomId] });
+        }}
+      />
+
+      <ConfirmDialog
+        open={deleteRoomOpen}
+        title="Excluir Sala"
+        message={`Tem certeza que deseja excluir "${room.name}"? Todos os dispositivos associados serão removidos.`}
+        loading={deleteRoomMutation.isPending}
+        onConfirm={() => deleteRoomMutation.mutate()}
+        onClose={() => setDeleteRoomOpen(false)}
+      />
     </Box>
   );
 };

@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import {
   Box,
@@ -10,6 +11,7 @@ import {
   Chip,
   Paper,
   Button,
+  IconButton,
   Skeleton,
 } from "@mui/material";
 import {
@@ -19,15 +21,48 @@ import {
   DevicesOutlined,
   Person,
   Add,
+  Edit,
+  Delete,
 } from "@mui/icons-material";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import apiService from "@services/api";
-import { RoomType } from "@/types";
+import { Floor, Room, RoomType } from "@/types";
 import EnergyChart from "@components/charts/EnergyChart";
+import FloorDialog from "./FloorDialog";
+import RoomDialog from "./RoomDialog";
+import ConfirmDialog from "@components/common/ConfirmDialog";
 
 const FloorDetailPage = () => {
   const { floorId } = useParams<{ floorId: string }>();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
+
+  const [editFloorOpen, setEditFloorOpen] = useState(false);
+  const [deleteFloorOpen, setDeleteFloorOpen] = useState(false);
+  const [roomDialogOpen, setRoomDialogOpen] = useState(false);
+  const [editRoom, setEditRoom] = useState<Room | null>(null);
+  const [deleteRoom, setDeleteRoom] = useState<Room | null>(null);
+
+  const deleteRoomMutation = useMutation({
+    mutationFn: (id: string) => apiService.deleteRoom(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['floors', floorId, 'details'] });
+      setDeleteRoom(null);
+    },
+  });
+
+  const deleteFloorMutation = useMutation({
+    mutationFn: () => apiService.deleteFloor(floorId!),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['buildings'] });
+      queryClient.invalidateQueries({ queryKey: ['floors'] });
+      if (floor?.buildingId) {
+        navigate(`/buildings/${floor.buildingId}`);
+      } else {
+        navigate('/buildings');
+      }
+    },
+  });
 
   const { data: floor, isLoading } = useQuery({
     queryKey: ["floors", floorId, "details"],
@@ -52,11 +87,6 @@ const FloorDetailPage = () => {
 
   const handleRoomClick = (roomId: string) => {
     navigate(`/rooms/${roomId}`);
-  };
-
-  const handleAddRoom = () => {
-    // TODO: Implementar modal de criação
-    console.log("Add room to floor:", floorId);
   };
 
   const getRoomTypeLabel = (type: RoomType) => {
@@ -143,21 +173,31 @@ const FloorDetailPage = () => {
         <CardContent sx={{ p: 4 }}>
           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4 }}>
             <Box>
-              <Typography 
-                variant="h4" 
+              <Typography
+                variant="h4"
                 fontWeight={700}
-                sx={{ 
-                  mb: 1.5,
-                  letterSpacing: '-0.02em',
-                }}
+                sx={{ mb: 1.5, letterSpacing: '-0.02em' }}
               >
                 {floor.name}
               </Typography>
-              <Chip
-                label={`${floor.number}º andar`}
-                color="primary"
-                sx={{ fontWeight: 600 }}
-              />
+              <Chip label={`${floor.number}º andar`} color="primary" sx={{ fontWeight: 600 }} />
+            </Box>
+            <Box sx={{ display: 'flex', gap: 1 }}>
+              <IconButton
+                size="small"
+                onClick={() => setEditFloorOpen(true)}
+                sx={{ '&:hover': { backgroundColor: 'primary.light', color: 'white' } }}
+              >
+                <Edit />
+              </IconButton>
+              <IconButton
+                size="small"
+                color="error"
+                onClick={() => setDeleteFloorOpen(true)}
+                sx={{ '&:hover': { backgroundColor: 'error.main', color: 'white' } }}
+              >
+                <Delete />
+              </IconButton>
             </Box>
           </Box>
 
@@ -288,7 +328,7 @@ const FloorDetailPage = () => {
           <Button
             variant="outlined"
             startIcon={<Add />}
-            onClick={() => navigate(`/rooms/new?floorId=${floorId}`)}
+            onClick={() => setRoomDialogOpen(true)}
             sx={{ borderRadius: 2 }}
           >
             Nova Sala
@@ -335,14 +375,37 @@ const FloorDetailPage = () => {
                   md: "1 1 calc(33.333% - 16px)",
                 },
                 minWidth: { xs: "100%", sm: 275 },
+                position: "relative",
                 borderRadius: 3,
                 transition: "all 0.2s ease-in-out",
+                "& .card-actions": { opacity: 0, transition: "opacity 0.2s" },
                 "&:hover": {
                   transform: "translateY(-4px)",
                   borderColor: "primary.main",
+                  "& .card-actions": { opacity: 1 },
                 },
               }}
             >
+              <Box
+                className="card-actions"
+                sx={{ position: "absolute", top: 8, right: 8, zIndex: 1, display: "flex", gap: 0.5 }}
+              >
+                <IconButton
+                  size="small"
+                  onClick={(e) => { e.stopPropagation(); setEditRoom(room as Room); }}
+                  sx={{ bgcolor: "background.paper", boxShadow: 1, "&:hover": { bgcolor: "primary.light", color: "white" } }}
+                >
+                  <Edit fontSize="small" />
+                </IconButton>
+                <IconButton
+                  size="small"
+                  color="error"
+                  onClick={(e) => { e.stopPropagation(); setDeleteRoom(room as Room); }}
+                  sx={{ bgcolor: "background.paper", boxShadow: 1, "&:hover": { bgcolor: "error.main", color: "white" } }}
+                >
+                  <Delete fontSize="small" />
+                </IconButton>
+              </Box>
               <CardActionArea onClick={() => handleRoomClick(room.id)}>
                 <CardContent>
                   <Box
@@ -437,6 +500,56 @@ const FloorDetailPage = () => {
           <EnergyChart data={energyData || []} />
         )}
       </Paper>
+
+      <FloorDialog
+        open={editFloorOpen}
+        buildingId={floor.buildingId}
+        floor={floor as Floor}
+        onClose={() => {
+          setEditFloorOpen(false);
+          queryClient.invalidateQueries({ queryKey: ['floors', floorId, 'details'] });
+        }}
+      />
+
+      {/* Create new room */}
+      <RoomDialog
+        open={roomDialogOpen}
+        floorId={floorId!}
+        onClose={() => {
+          setRoomDialogOpen(false);
+          queryClient.invalidateQueries({ queryKey: ['floors', floorId, 'details'] });
+        }}
+      />
+
+      {/* Edit specific room */}
+      <RoomDialog
+        open={!!editRoom}
+        floorId={floorId!}
+        room={editRoom}
+        onClose={() => {
+          setEditRoom(null);
+          queryClient.invalidateQueries({ queryKey: ['floors', floorId, 'details'] });
+        }}
+      />
+
+      {/* Delete specific room */}
+      <ConfirmDialog
+        open={!!deleteRoom}
+        title="Excluir Sala"
+        message={`Tem certeza que deseja excluir "${deleteRoom?.name}"? Todos os dispositivos associados serão removidos.`}
+        loading={deleteRoomMutation.isPending}
+        onConfirm={() => deleteRoom && deleteRoomMutation.mutate(deleteRoom.id)}
+        onClose={() => setDeleteRoom(null)}
+      />
+
+      <ConfirmDialog
+        open={deleteFloorOpen}
+        title="Excluir Andar"
+        message={`Tem certeza que deseja excluir "${floor.name}"? Todas as salas associadas serão removidas.`}
+        loading={deleteFloorMutation.isPending}
+        onConfirm={() => deleteFloorMutation.mutate()}
+        onClose={() => setDeleteFloorOpen(false)}
+      />
     </Box>
   );
 };

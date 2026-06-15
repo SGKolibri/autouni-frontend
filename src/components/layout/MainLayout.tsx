@@ -236,6 +236,8 @@ const MainLayout = () => {
         component="main"
         sx={{
           flexGrow: 1,
+          minWidth: 0,
+          overflowX: 'hidden',
           p: { xs: 2, sm: 3, md: 4 },
           mt: 8,
           backgroundColor: '#F9FAFB',

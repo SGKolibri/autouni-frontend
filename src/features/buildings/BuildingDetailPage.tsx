@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import {
   Box,
@@ -10,6 +11,7 @@ import {
   Chip,
   Paper,
   IconButton,
+  Button,
   Skeleton,
 } from '@mui/material';
 import {
@@ -20,15 +22,42 @@ import {
   Delete,
   BoltOutlined,
   DevicesOutlined,
+  Add,
 } from '@mui/icons-material';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import apiService from '@services/api';
-import { Building } from '@/types';
+import { Building, Floor } from '@/types';
 import EnergyChart from '@components/charts/EnergyChart';
+import BuildingDialog from './BuildingDialog';
+import FloorDialog from './FloorDialog';
+import ConfirmDialog from '@components/common/ConfirmDialog';
 
 const BuildingDetailPage = () => {
   const { buildingId } = useParams<{ buildingId: string }>();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
+
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [floorDialogOpen, setFloorDialogOpen] = useState(false);
+  const [editFloor, setEditFloor] = useState<Floor | null>(null);
+  const [deleteFloor, setDeleteFloor] = useState<Floor | null>(null);
+
+  const deleteMutation = useMutation({
+    mutationFn: () => apiService.deleteBuilding(buildingId!),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['buildings'] });
+      navigate('/buildings');
+    },
+  });
+
+  const deleteFloorMutation = useMutation({
+    mutationFn: (id: string) => apiService.deleteFloor(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['buildings', buildingId, 'details'] });
+      setDeleteFloor(null);
+    },
+  });
 
   const { data: building, isLoading } = useQuery({
     queryKey: ['buildings', buildingId, 'details'],
@@ -151,26 +180,18 @@ const BuildingDetailPage = () => {
               </Box>
             </Box>
             <Box sx={{ display: 'flex', gap: 1 }}>
-              <IconButton 
+              <IconButton
                 size="small"
-                sx={{ 
-                  '&:hover': { 
-                    backgroundColor: 'primary.light',
-                    color: 'white',
-                  },
-                }}
+                onClick={() => setEditDialogOpen(true)}
+                sx={{ '&:hover': { backgroundColor: 'primary.light', color: 'white' } }}
               >
                 <Edit />
               </IconButton>
-              <IconButton 
-                size="small" 
+              <IconButton
+                size="small"
                 color="error"
-                sx={{ 
-                  '&:hover': { 
-                    backgroundColor: 'error.main',
-                    color: 'white',
-                  },
-                }}
+                onClick={() => setDeleteDialogOpen(true)}
+                sx={{ '&:hover': { backgroundColor: 'error.main', color: 'white' } }}
               >
                 <Delete />
               </IconButton>
@@ -298,13 +319,23 @@ const BuildingDetailPage = () => {
 
       {/* Floors */}
       <Box sx={{ mb: 4 }}>
-        <Box sx={{ mb: 3 }}>
-          <Typography variant="h5" fontWeight={700} sx={{ mb: 0.5 }}>
-            Andares
-          </Typography>
-          <Typography variant="body2" color="text.secondary" fontWeight={500}>
-            {isLoading ? 'Carregando...' : `${building.floors?.length || 0} andar(es) neste prédio`}
-          </Typography>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 3 }}>
+          <Box>
+            <Typography variant="h5" fontWeight={700} sx={{ mb: 0.5 }}>
+              Andares
+            </Typography>
+            <Typography variant="body2" color="text.secondary" fontWeight={500}>
+              {isLoading ? 'Carregando...' : `${building.floors?.length || 0} andar(es) neste prédio`}
+            </Typography>
+          </Box>
+          <Button
+            variant="outlined"
+            startIcon={<Add />}
+            onClick={() => setFloorDialogOpen(true)}
+            sx={{ borderRadius: 2 }}
+          >
+            Novo Andar
+          </Button>
         </Box>
 
         {isLoading ? (
@@ -343,14 +374,37 @@ const BuildingDetailPage = () => {
               sx={{
                 flex: 1,
                 minWidth: { xs: '100%', sm: 275 },
+                position: 'relative',
                 borderRadius: 3,
                 transition: 'all 0.2s ease-in-out',
+                '& .card-actions': { opacity: 0, transition: 'opacity 0.2s' },
                 '&:hover': {
                   transform: 'translateY(-4px)',
                   borderColor: 'primary.main',
+                  '& .card-actions': { opacity: 1 },
                 },
               }}
             >
+              <Box
+                className="card-actions"
+                sx={{ position: 'absolute', top: 8, right: 8, zIndex: 1, display: 'flex', gap: 0.5 }}
+              >
+                <IconButton
+                  size="small"
+                  onClick={(e) => { e.stopPropagation(); setEditFloor(floor as Floor); }}
+                  sx={{ bgcolor: 'background.paper', boxShadow: 1, '&:hover': { bgcolor: 'primary.light', color: 'white' } }}
+                >
+                  <Edit fontSize="small" />
+                </IconButton>
+                <IconButton
+                  size="small"
+                  color="error"
+                  onClick={(e) => { e.stopPropagation(); setDeleteFloor(floor as Floor); }}
+                  sx={{ bgcolor: 'background.paper', boxShadow: 1, '&:hover': { bgcolor: 'error.main', color: 'white' } }}
+                >
+                  <Delete fontSize="small" />
+                </IconButton>
+              </Box>
               <CardActionArea onClick={() => handleFloorClick(floor.id)}>
                 <CardContent>
                   <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
@@ -407,6 +461,52 @@ const BuildingDetailPage = () => {
         </Box>
       )}
       </Box>
+
+      <BuildingDialog
+        open={editDialogOpen}
+        building={building as Building}
+        onClose={() => setEditDialogOpen(false)}
+      />
+
+      {/* Create new floor */}
+      <FloorDialog
+        open={floorDialogOpen}
+        buildingId={buildingId!}
+        onClose={() => {
+          setFloorDialogOpen(false);
+          queryClient.invalidateQueries({ queryKey: ['buildings', buildingId, 'details'] });
+        }}
+      />
+
+      {/* Edit specific floor */}
+      <FloorDialog
+        open={!!editFloor}
+        buildingId={buildingId!}
+        floor={editFloor}
+        onClose={() => {
+          setEditFloor(null);
+          queryClient.invalidateQueries({ queryKey: ['buildings', buildingId, 'details'] });
+        }}
+      />
+
+      {/* Delete specific floor */}
+      <ConfirmDialog
+        open={!!deleteFloor}
+        title="Excluir Andar"
+        message={`Tem certeza que deseja excluir "${deleteFloor?.name}"? Todas as salas associadas serão removidas.`}
+        loading={deleteFloorMutation.isPending}
+        onConfirm={() => deleteFloor && deleteFloorMutation.mutate(deleteFloor.id)}
+        onClose={() => setDeleteFloor(null)}
+      />
+
+      <ConfirmDialog
+        open={deleteDialogOpen}
+        title="Excluir Prédio"
+        message={`Tem certeza que deseja excluir "${building.name}"? Todos os andares e salas associados serão removidos.`}
+        loading={deleteMutation.isPending}
+        onConfirm={() => deleteMutation.mutate()}
+        onClose={() => setDeleteDialogOpen(false)}
+      />
 
       {/* Energy Chart */}
       <Paper sx={{ p: 4, borderRadius: 3 }}>
