@@ -19,6 +19,9 @@ import apiService from '@services/api';
 const BuildingsList = () => {
   const navigate = useNavigate();
 
+  const getBuildingEnergy = (building: { todayEnergyKwh?: number; dailyConsumptionKwh?: number; totalEnergy?: number }) =>
+    building.todayEnergyKwh ?? building.dailyConsumptionKwh ?? building.totalEnergy ?? 0;
+
   const { data: buildings, isLoading } = useQuery({
     queryKey: ['buildings'],
     queryFn: () => apiService.getBuildings(),
@@ -95,7 +98,7 @@ const BuildingsList = () => {
               </TableCell>
               <TableCell align="right" sx={{ display: { xs: 'none', md: 'table-cell' } }}>
                 <Typography variant="body2" fontWeight={600}>
-                  {building.totalEnergy?.toFixed(2) || '0.00'}
+                  {getBuildingEnergy(building).toFixed(2)}
                 </Typography>
               </TableCell>
               <TableCell align="right">

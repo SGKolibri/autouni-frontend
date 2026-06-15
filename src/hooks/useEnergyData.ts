@@ -1,11 +1,11 @@
-import { useQuery } from '@tanstack/react-query';
-import apiService from '@services/api';
-import { EnergyStats, EnergyReading } from '@/types';
+import { useQuery } from "@tanstack/react-query";
+import apiService from "@services/api";
+import { EnergyStats, EnergyReading } from "@/types";
 
 interface UseEnergyDataOptions {
-  level?: 'general' | 'building' | 'floor' | 'room';
+  level?: "general" | "building" | "floor" | "room";
   id?: string;
-  period?: 'today' | 'week' | 'month' | 'custom';
+  period?: "today" | "week" | "month" | "custom";
   startDate?: string;
   endDate?: string;
   enabled?: boolean;
@@ -14,9 +14,9 @@ interface UseEnergyDataOptions {
 
 export const useEnergyData = (options: UseEnergyDataOptions = {}) => {
   const {
-    level = 'general',
+    level = "general",
     id,
-    period = 'today',
+    period = "today",
     startDate,
     endDate,
     enabled = true,
@@ -29,23 +29,23 @@ export const useEnergyData = (options: UseEnergyDataOptions = {}) => {
     isLoading: statsLoading,
     error: statsError,
   } = useQuery({
-    queryKey: ['energy', 'stats', level, id, period, startDate, endDate],
+    queryKey: ["energy", "stats", level, id, period, startDate, endDate],
     queryFn: async () => {
       const params = new URLSearchParams();
-      params.append('period', period);
-      
-      if (level !== 'general' && id) {
-        params.append('level', level);
-        params.append('id', id);
+      params.append("period", period);
+
+      if (level !== "general" && id) {
+        params.append("level", level);
+        params.append("id", id);
       }
-      
-      if (period === 'custom' && startDate && endDate) {
-        params.append('startDate', startDate);
-        params.append('endDate', endDate);
+
+      if (period === "custom" && startDate && endDate) {
+        params.append("startDate", startDate);
+        params.append("endDate", endDate);
       }
 
       const response = await apiService.get<EnergyStats>(
-        `/energy/stats?${params.toString()}`
+        `/energy/stats?${params.toString()}`,
       );
       return response.data;
     },
@@ -59,23 +59,23 @@ export const useEnergyData = (options: UseEnergyDataOptions = {}) => {
     isLoading: historyLoading,
     error: historyError,
   } = useQuery({
-    queryKey: ['energy', 'history', level, id, period, startDate, endDate],
+    queryKey: ["energy", "history", level, id, period, startDate, endDate],
     queryFn: async () => {
       const params = new URLSearchParams();
-      params.append('period', period);
-      
-      if (level !== 'general' && id) {
-        params.append('level', level);
-        params.append('id', id);
+      params.append("period", period);
+
+      if (level !== "general" && id) {
+        params.append("level", level);
+        params.append("id", id);
       }
-      
-      if (period === 'custom' && startDate && endDate) {
-        params.append('startDate', startDate);
-        params.append('endDate', endDate);
+
+      if (period === "custom" && startDate && endDate) {
+        params.append("startDate", startDate);
+        params.append("endDate", endDate);
       }
 
       const response = await apiService.get<EnergyReading[]>(
-        `/energy/history?${params.toString()}`
+        `/energy/history?${params.toString()}`,
       );
       return response.data;
     },
@@ -89,18 +89,19 @@ export const useEnergyData = (options: UseEnergyDataOptions = {}) => {
     isLoading: realtimeLoading,
     error: realtimeError,
   } = useQuery({
-    queryKey: ['energy', 'realtime', level, id],
+    queryKey: ["energy", "realtime", level, id],
     queryFn: async () => {
       const params = new URLSearchParams();
-      
-      if (level !== 'general' && id) {
-        params.append('level', level);
-        params.append('id', id);
+
+      if (level !== "general" && id) {
+        params.append("level", level);
+        params.append("id", id);
       }
 
-      const response = await apiService.get<{ power: number; timestamp: string }>(
-        `/energy/realtime?${params.toString()}`
-      );
+      const response = await apiService.get<{
+        power: number;
+        timestamp: string;
+      }>(`/energy/realtime?${params.toString()}`);
       return response.data;
     },
     enabled,

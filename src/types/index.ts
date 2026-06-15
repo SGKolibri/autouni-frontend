@@ -48,6 +48,8 @@ export interface Building {
   description?: string;
   location: string;
   floors?: Floor[];
+  todayEnergyKwh?: number;
+  dailyConsumptionKwh?: number;
   totalEnergy?: number;
   energyPeriod?: 'today' | 'week' | 'month';
   activeDevices?: number;

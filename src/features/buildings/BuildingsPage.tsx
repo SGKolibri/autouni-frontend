@@ -40,6 +40,9 @@ const BuildingsPage = () => {
     console.log('Add building');
   };
 
+  const getBuildingEnergy = (building: { todayEnergyKwh?: number; dailyConsumptionKwh?: number; totalEnergy?: number }) =>
+    building.todayEnergyKwh ?? building.dailyConsumptionKwh ?? building.totalEnergy ?? 0;
+
   if (isLoading) {
     return (
       <Box>
@@ -172,7 +175,7 @@ const BuildingsPage = () => {
                           Consumo{building.energyPeriod === 'today' ? ' hoje' : building.energyPeriod === 'week' ? ' (semana)' : building.energyPeriod === 'month' ? ' (mês)' : ''}
                         </Typography>
                         <Typography variant="body2" fontWeight={600}>
-                          {building.totalEnergy?.toFixed(2) || '0.00'} kWh
+                          {getBuildingEnergy(building).toFixed(2)} kWh
                         </Typography>
                       </Box>
                     </Box>
