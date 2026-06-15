@@ -24,7 +24,7 @@ import {
   DevicesOutlined,
   Add,
 } from '@mui/icons-material';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueries, useMutation, useQueryClient } from '@tanstack/react-query';
 import apiService from '@services/api';
 import { Building, Floor } from '@/types';
 import EnergyChart from '@components/charts/EnergyChart';
@@ -76,6 +76,18 @@ const BuildingDetailPage = () => {
     },
     enabled: !!buildingId,
   });
+
+  const floorIds = building?.floors?.map((f) => f.id) ?? [];
+  const floorEnergyResults = useQueries({
+    queries: floorIds.map((floorId) => ({
+      queryKey: ['floors', floorId, 'energy'],
+      queryFn: () => apiService.getFloorEnergyStats(floorId),
+      enabled: !!building,
+    })),
+  });
+  const floorEnergyMap = Object.fromEntries(
+    floorIds.map((id, i) => [id, floorEnergyResults[i]?.data?.totalKwh ?? floorEnergyResults[i]?.data?.totalEnergy ?? 0])
+  );
 
   const handleFloorClick = (floorId: string) => {
     navigate(`/floors/${floorId}`);
@@ -450,7 +462,7 @@ const BuildingDetailPage = () => {
                         Consumo
                       </Typography>
                       <Typography variant="body2" fontWeight={600}>
-                        {floor.totalEnergy?.toFixed(2) || '0.00'} kWh
+                        {(floorEnergyMap[floor.id] ?? 0).toFixed(2)} kWh
                       </Typography>
                     </Box>
                   </Box>

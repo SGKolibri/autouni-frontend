@@ -24,7 +24,7 @@ import {
   Edit,
   Delete,
 } from "@mui/icons-material";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueries, useMutation, useQueryClient } from "@tanstack/react-query";
 import apiService from "@services/api";
 import { Floor, Room, RoomType } from "@/types";
 import EnergyChart from "@components/charts/EnergyChart";
@@ -84,6 +84,18 @@ const FloorDetailPage = () => {
     },
     enabled: !!floorId,
   });
+
+  const roomIds = floor?.rooms?.map((r) => r.id) ?? [];
+  const roomEnergyResults = useQueries({
+    queries: roomIds.map((roomId) => ({
+      queryKey: ['rooms', roomId, 'energy'],
+      queryFn: () => apiService.getRoomEnergyStats(roomId),
+      enabled: !!floor,
+    })),
+  });
+  const roomEnergyMap = Object.fromEntries(
+    roomIds.map((id, i) => [id, roomEnergyResults[i]?.data?.totalKwh ?? roomEnergyResults[i]?.data?.totalEnergy ?? 0])
+  );
 
   const handleRoomClick = (roomId: string) => {
     navigate(`/rooms/${roomId}`);
@@ -472,7 +484,7 @@ const FloorDetailPage = () => {
                         Consumo
                       </Typography>
                       <Typography variant="body2" fontWeight={600}>
-                        {room.totalEnergy?.toFixed(2) || "0.00"} kWh
+                        {(roomEnergyMap[room.id] ?? 0).toFixed(2)} kWh
                       </Typography>
                     </Box>
                   </Box>
